@@ -8,6 +8,47 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 import openai
 
+
+def strengths(strengths_preceptor):
+    prompt = f"""
+    The user is a preceptor in a pediatric clerkship and received the following feedback: {strengths_preceptor}
+    
+    Summarize the preceptor's strengths briefly. 
+    """
+
+
+    # Call OpenAI API using the ChatCompletion method
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": "You are an expert in pediatric medical education."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=500,
+    )
+
+    return response['choices'][0]['message']['content'].strip()
+
+def improvement(improvement_preceptor):
+    prompt = f"""
+    The user is a preceptor in a pediatric clerkship and received the following feedback: {improvement_preceptor}
+    
+    Summarize the preceptor's opportunities for improvement briefly. 
+    """
+
+
+    # Call OpenAI API using the ChatCompletion method
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": "You are an expert in pediatric medical education."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=500,
+    )
+
+    return response['choices'][0]['message']['content'].strip()
+    
 ########################################
 # 1) OPENAI & FIREBASE SETUP
 ########################################
@@ -152,7 +193,10 @@ if analysis_report_file is not None:
         # Group by Evaluator and Evaluator Email using the updated aggregation functions
         final_group_cols = ["Evaluator", "Evaluator Email"]
         df_final = df_grouped.groupby(final_group_cols, as_index=False).agg(agg_funcs)
-        
+
+        df_final["strengths_summary"] = df_final["strengths_preceptor"].apply(strengths)
+        df_final["improvement_summary"] = df_final["improvement_preceptor"].apply(improvement)
+
         # Display the final aggregated DataFrame with the count of evaluations
         st.dataframe(df_final)
     
