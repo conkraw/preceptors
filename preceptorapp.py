@@ -55,7 +55,31 @@ if analysis_report_file is not None:
         dfa = dfa.iloc[:, selected_indices]
         st.dataframe(dfa)
         st.write(list(dfa.columns))
-        
+
+        df = dfa.copy()
+        rename_mapping = {}
+        # Loop through columns to find ones with the pattern "<number> Question"
+        for col in df.columns:
+            m = re.match(r'^(\d+)\s+Question$', col)
+            if m:
+                num = m.group(1)
+                # Try different possible suffixes for the corresponding answer column
+                for suffix in ["Multiple Choice Value", "Multiple Choice Label", "Answer text"]:
+                    answer_col = f"{num} {suffix}"
+                    if answer_col in df.columns:
+                        # Use the question text from the first row of the question column
+                        question_text = df[col].iloc[0] if not df[col].empty else col
+                        rename_mapping[answer_col] = question_text
+                        break  # stop after the first matching answer column
+
+        # Rename the answer columns with the question text
+        df.rename(columns=rename_mapping, inplace=True)
+
+        # Optionally, remove the question columns if they are no longer needed
+        question_columns = [col for col in df.columns if re.match(r'^\d+\s+Question$', col)]
+        df.drop(columns=question_columns, inplace=True)
+
+        st.dataframe(df)
     except Exception as e:
         st.error(f"Error loading file: {e}")
 if evaluation_due_dates_file is not None:
