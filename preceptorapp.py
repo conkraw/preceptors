@@ -119,8 +119,8 @@ if analysis_report_file is not None:
         # Optionally, remove the question columns if they are no longer needed
         question_columns = [col for col in df.columns if re.match(r'^\d+\s+Question$', col)]
         df.drop(columns=question_columns, inplace=True)
-        st.write(list(df.columns))
-        st.dataframe(df)
+        #st.write(list(df.columns))
+        #st.dataframe(df)
 
         df['Rotation Period'] = pd.to_datetime(df.iloc[:, 0], errors='coerce').dt.strftime('%B %Y')
     
@@ -160,7 +160,7 @@ if analysis_report_file is not None:
         df_grouped = df_grouped[ordered_columns]
         
         # Display the final aggregated DataFrame in your Streamlit app
-        st.dataframe(df_grouped)
+        #st.dataframe(df_grouped)
 
         final_group_cols = ["Evaluator", "Evaluator Email"]
         
