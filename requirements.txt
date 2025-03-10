@@ -10,3 +10,4 @@ openai==0.28.0
 streamlit
 python-docx
 beautifulsoup4
+firebase-admin
