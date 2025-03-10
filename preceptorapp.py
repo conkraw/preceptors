@@ -10,15 +10,15 @@ import openai
 import zipfile
 import docx
         
-def strengths(strengths_preceptor):
+def strengths(strengths_preceptor, evaluator_name):
     prompt = f"""
     You are an expert in pediatric medical education.
 
-    A preceptor in a pediatric clerkship received the following feedback regarding their performance:
+    {evaluator_name} received the following feedback regarding their performance as a preceptor in a pediatric clerkship:
     {strengths_preceptor}
 
-    Please provide a concise summary of this individual's strengths.
-    In your summary, refer only to the individual as "preceptor" when describing actions or behaviors.
+    Please provide a concise summary of {evaluator_name}'s strengths.
+    In your summary, refer to the individual by name (using their first and last name and/or “Dr. Lastname”) when describing actions or behaviors.
     Assume that the feedback pertains exclusively to one individual.
     """
     response = openai.ChatCompletion.create(
@@ -31,15 +31,15 @@ def strengths(strengths_preceptor):
     )
     return response['choices'][0]['message']['content'].strip()
 
-def improvement(improvement_preceptor):
+def improvement(improvement_preceptor, evaluator_name):
     prompt = f"""
     You are an expert in pediatric medical education.
 
-    A preceptor in a pediatric clerkship received the following feedback regarding opportunities for improvement:
+    {evaluator_name} received the following feedback regarding opportunities for improvement as a preceptor in a pediatric clerkship:
     {improvement_preceptor}
 
-    Please provide a concise summary of this individual's opportunities for improvement.
-    In your summary, refer only to the individual as "preceptor" when describing actions or behaviors.
+    Please provide a concise summary of {evaluator_name}'s opportunities for improvement.
+    In your summary, refer to the individual by name (using their first and last name and/or “Dr. Lastname”) when describing actions or behaviors.
     Assume that the feedback pertains exclusively to one individual.
     """
     response = openai.ChatCompletion.create(
@@ -51,6 +51,7 @@ def improvement(improvement_preceptor):
         max_tokens=500,
     )
     return response['choices'][0]['message']['content'].strip()
+
 
     
 ########################################
@@ -228,6 +229,7 @@ if analysis_report_file is not None:
                 for col in df_final.columns:
                     if col not in known_cols and pd.api.types.is_numeric_dtype(df_final[col]):
                         # Write each question on one line with its average score formatted to 2 decimals
+                        clean_col = col.rstrip('.')
                         document.add_paragraph(f"{col}: {row[col]:.2f}")
                 
                 # Write rotation period(s)
