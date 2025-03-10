@@ -10,14 +10,14 @@ import openai
 import zipfile
 import docx
         
-def strengths(strengths_preceptor, evaluator_name):
+def strengths(strengths_preceptor, Evaluator):
     prompt = f"""
     You are an expert in pediatric medical education.
 
-    {evaluator_name} received the following feedback regarding their performance as a preceptor in a pediatric clerkship:
+    {Evaluator} received the following feedback regarding their performance as a preceptor in a pediatric clerkship:
     {strengths_preceptor}
 
-    Please provide a concise summary of {evaluator_name}'s strengths.
+    Please provide a concise summary of {Evaluator}'s strengths.
     In your summary, refer to the individual by name (using their first and last name and/or “Dr. Lastname”) when describing actions or behaviors.
     Assume that the feedback pertains exclusively to one individual.
     """
@@ -31,14 +31,14 @@ def strengths(strengths_preceptor, evaluator_name):
     )
     return response['choices'][0]['message']['content'].strip()
 
-def improvement(improvement_preceptor, evaluator_name):
+def improvement(improvement_preceptor, Evaluator):
     prompt = f"""
     You are an expert in pediatric medical education.
 
-    {evaluator_name} received the following feedback regarding opportunities for improvement as a preceptor in a pediatric clerkship:
+    {Evaluator} received the following feedback regarding opportunities for improvement as a preceptor in a pediatric clerkship:
     {improvement_preceptor}
 
-    Please provide a concise summary of {evaluator_name}'s opportunities for improvement.
+    Please provide a concise summary of {Evaluator}'s opportunities for improvement.
     In your summary, refer to the individual by name (using their first and last name and/or “Dr. Lastname”) when describing actions or behaviors.
     Assume that the feedback pertains exclusively to one individual.
     """
