@@ -245,54 +245,82 @@ if analysis_report_file is not None:
         # Display the final aggregated DataFrame with the count of evaluations
         st.dataframe(df_final)
         
-        # Define known columns (text fields) so that remaining numeric columns are considered evaluation questions.
-        known_cols = {
-            "Evaluator", "Evaluator Email", "Rotation Period", 
-            "strengths_preceptor", "improvement_preceptor", 
-            "strengths_summary", "improvement_summary", 
-            "num_evaluations", "Form Record"
-        }
+        # --- STEP 1: Identify Eligible Preceptors ---
+        # Define the known text fields to identify numeric score columns.
+        known_cols = {"Evaluator", "Evaluator Email", "Rotation Period", "strengths_preceptor", "improvement_preceptor", "strengths_summary", "improvement_summary", "num_evaluations", "Form Record"}
         
-        # Identify evaluation score columns from df_final (all numeric columns not in known_cols)
+        # Identify evaluation score columns as those numeric columns not in known_cols.
         score_cols = [col for col in df_final.columns if col not in known_cols and pd.api.types.is_numeric_dtype(df_final[col])]
         
-        # Filter for eligible preceptors: every evaluation question (score) must be 4.5 or above.
+        # Filter for eligible preceptors: every evaluation score must be 4.5 or above.
         eligible_df = df_final[df_final[score_cols].ge(4.5).all(axis=1)].copy()
         
-        # Retrieve evaluators already in spotlight from Firebase.
+        # Retrieve already spotlighted evaluators from Firebase.
         spotlight_docs = db.collection("spotlight").stream()
         spotlight_evaluators = {doc.to_dict().get("Evaluator") for doc in spotlight_docs}
         
-        # Exclude preceptors already in the spotlight.
+        # Exclude evaluators already in the spotlight.
         eligible_df = eligible_df[~eligible_df["Evaluator"].isin(spotlight_evaluators)]
         
         if eligible_df.empty:
             st.info("No eligible preceptors found for the spotlight this month.")
         else:
-            # Randomly select one candidate from the eligible preceptors.
+            # --- STEP 2: Randomly Select a Spotlight Candidate ---
             selected_candidate = eligible_df.sample(n=1).iloc[0]
             
-            # Generate a spotlight summary based on the strengths feedback.
+            # Generate a spotlight summary using ChatGPT (based on the strengths feedback)
             spotlight_reason = generate_spotlight_summary(selected_candidate["strengths_preceptor"], selected_candidate["Evaluator"])
             
-            # Add the spotlight summary to the DataFrame (a new column).
+            # Add the spotlight summary to the DataFrame (if desired)
             df_final.loc[df_final["Evaluator"] == selected_candidate["Evaluator"], "spotlight_summary"] = spotlight_reason
             
-            # Prepare the record data for Firebase.
+            # --- STEP 3: Upload the Spotlight Record to Firebase ---
+            # Use the evaluator's name as the document ID.
             record = {
                 "Evaluator": selected_candidate["Evaluator"],
                 "Evaluator Email": selected_candidate["Evaluator Email"],
                 "Form Record": str(selected_candidate["Form Record"]),
                 "spotlight_summary": spotlight_reason,
                 "Rotation Period": selected_candidate["Rotation Period"],
-                # Optionally add evaluation scores or other fields if desired.
+                "num_evaluations": selected_candidate["num_evaluations"],
+                "strengths_preceptor": selected_candidate["strengths_preceptor"],
+                "improvement_preceptor": selected_candidate["improvement_preceptor"]
+                # Add additional fields as needed.
             }
             
-            # Upload the spotlight record to Firebase so that this evaluator isn’t selected again.
-            db.collection("spotlight").document(str(selected_candidate["Form Record"])).set(record)
-            
+            db.collection("spotlight").document(selected_candidate["Evaluator"]).set(record)
             st.success(f"Spotlight selected: {selected_candidate['Evaluator']}")
-
+            
+            # --- STEP 4: Create a Word Document for the Spotlight Candidate ---
+            document = docx.Document()
+            
+            document.add_heading(f"Spotlight Preceptor: {selected_candidate['Evaluator']}", level=1)
+            document.add_paragraph(f"Email: {selected_candidate['Evaluator Email']}")
+            document.add_paragraph(f"Number of Evaluations: {selected_candidate['num_evaluations']}")
+            document.add_paragraph(f"Rotation Period(s): {selected_candidate['Rotation Period']}")
+            
+            document.add_heading("Evaluation Scores", level=2)
+            for col in df_final.columns:
+                if col not in known_cols and pd.api.types.is_numeric_dtype(df_final[col]):
+                    # Remove any trailing period from the column name.
+                    clean_col = col.rstrip('.')
+                    document.add_paragraph(f"{clean_col}: {selected_candidate[col]:.2f}")
+            
+            document.add_heading("Strengths Comments", level=2)
+            document.add_paragraph(str(selected_candidate["strengths_preceptor"]))
+            
+            document.add_heading("Opportunities for Improvement Comments", level=2)
+            document.add_paragraph(str(selected_candidate["improvement_preceptor"]))
+            
+            document.add_heading("Spotlight Summary", level=2)
+            document.add_paragraph(spotlight_reason)
+            
+            # --- STEP 5: Provide a Download Button for the Word Document ---
+            doc_buffer = io.BytesIO()
+            document.save(doc_buffer)
+            doc_buffer.seek(0)
+            
+            st.download_button(label="Download Spotlight Word Document", data=doc_buffer, file_name=f"{selected_candidate['Evaluator']}_spotlight.docx", mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
 
         # Create an in-memory zip file
         zip_buffer = io.BytesIO()
