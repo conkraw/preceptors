@@ -7,7 +7,9 @@ import pytz
 import firebase_admin
 from firebase_admin import credentials, firestore
 import openai
-
+import zipfile
+import docx
+        
 def strengths(strengths_preceptor):
     prompt = f"""
     You are an expert in pediatric medical education.
@@ -201,7 +203,72 @@ if analysis_report_file is not None:
 
         # Display the final aggregated DataFrame with the count of evaluations
         st.dataframe(df_final)
-    
+
+        # Create an in-memory zip file
+        zip_buffer = io.BytesIO()
+        
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zipf:
+            # Loop through each evaluator in df_final
+            for idx, row in df_final.iterrows():
+                # Create a new Word document for each evaluator
+                document = docx.Document()
+                
+                # Write header info: evaluator's name, email, and number of evaluations
+                document.add_heading(f"Evaluator: {row['Evaluator']}", level=1)
+                document.add_paragraph(f"Email: {row['Evaluator Email']}")
+                document.add_paragraph(f"Number of Evaluations: {row['num_evaluations']}")
+                
+                # Write evaluation question scores.
+                # Assume that the remaining numeric columns (not part of the known text fields) are the evaluation questions.
+                known_cols = {"Evaluator", "Evaluator Email", "Rotation Period", 
+                              "strengths_preceptor", "improvement_preceptor", 
+                              "strengths_summary", "improvement_summary", 
+                              "num_evaluations", "Form Record"}
+                document.add_heading("Evaluation Scores", level=2)
+                for col in df_final.columns:
+                    if col not in known_cols and pd.api.types.is_numeric_dtype(df_final[col]):
+                        # Write each question on one line with its average score formatted to 2 decimals
+                        document.add_paragraph(f"{col}: {row[col]:.2f}")
+                
+                # Write rotation period(s)
+                document.add_heading("Rotation Period(s)", level=2)
+                document.add_paragraph(str(row["Rotation Period"]))
+                
+                # Write all strengths and opportunities for improvement comments
+                document.add_heading("Strengths Comments", level=2)
+                document.add_paragraph(str(row["strengths_preceptor"]))
+                document.add_heading("Opportunities for Improvement Comments", level=2)
+                document.add_paragraph(str(row["improvement_preceptor"]))
+                
+                # Write the summary fields
+                document.add_heading("Strengths Summary", level=2)
+                document.add_paragraph(str(row["strengths_summary"]))
+                document.add_heading("Opportunities for Improvement Summary", level=2)
+                document.add_paragraph(str(row["improvement_summary"]))
+                
+                # Save the document to a temporary in-memory buffer
+                doc_buffer = io.BytesIO()
+                document.save(doc_buffer)
+                doc_buffer.seek(0)
+                
+                # Create a filename safe for the evaluator (using evaluator's name)
+                safe_name = "".join(c for c in row['Evaluator'] if c.isalnum() or c in (' ', '_')).rstrip().replace(" ", "_")
+                filename = f"{safe_name}.docx"
+                
+                # Write the Word file to the zip archive
+                zipf.writestr(filename, doc_buffer.read())
+        
+        # Finalize the zip file and get its binary content
+        zip_buffer.seek(0)
+        zip_data = zip_buffer.getvalue()
+        
+        # Provide a download button for the zip file (Streamlit)
+        st.download_button(
+            label="Download Evaluator Word Files",
+            data=zip_data,
+            file_name="evaluators.zip",
+            mime="application/zip"
+        )
 
     except Exception as e:
         st.error(f"Error loading file: {e}")
