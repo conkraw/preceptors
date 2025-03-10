@@ -10,11 +10,19 @@ import openai
 import zipfile
 import docx
 
-def is_record_processed(record_id):
-    # Ensure the record_id is a string before querying Firestore
+def check_and_add_record(record_id):
+    # Ensure the record_id is a string
     record_id_str = str(record_id)
     doc_ref = db.collection("preceptors").document(record_id_str)
-    return doc_ref.get().exists
+    
+    # If the record does not exist, add it
+    if not doc_ref.get().exists:
+        # Optionally, you can add additional data (like a timestamp) in the document
+        doc_ref.set({"processed": True})
+        return False  # Indicates the record was not previously processed
+    else:
+        return True  # Indicates the record already exists
+
         
 def strengths(strengths_preceptor, Evaluator):
     prompt = f"""
@@ -103,7 +111,8 @@ if analysis_report_file is not None:
             dfa = pd.read_excel(analysis_report_file)
         # Display the DataFrame in the app
 
-        dfa = dfa[~dfa["Form Record"].apply(lambda record: is_record_processed(record))]
+        dfa = dfa[~dfa["Form Record"].apply(lambda record: check_and_add_record(record))]
+
 
         selected_indices = [4, 5, 16, 19, 23, 27, 30, 34, 37, 41, 44, 48, 51, 55, 58, 62,65, 69, 72, 76, 79, 83, 86, 90, 93, 97, 100, 104, 107, 111, 114, 118, 121, 125, 128, 132, 135, 139, 143, 146, 147, 153, 154]
         dfa = dfa.iloc[:, selected_indices]
