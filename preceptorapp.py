@@ -8,16 +8,17 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 import openai
 
-
 def strengths(strengths_preceptor):
     prompt = f"""
-    The user is a preceptor in a pediatric clerkship and received the following feedback: {strengths_preceptor}
-    
-    Summarize the preceptor's strengths briefly. 
+    You are an expert in pediatric medical education.
+
+    A preceptor in a pediatric clerkship received the following feedback regarding their performance:
+    {strengths_preceptor}
+
+    Please provide a concise summary of this individual's strengths.
+    In your summary, refer only to the individual as "preceptor" when describing actions or behaviors.
+    Assume that the feedback pertains exclusively to one individual.
     """
-
-
-    # Call OpenAI API using the ChatCompletion method
     response = openai.ChatCompletion.create(
         model="gpt-4",
         messages=[
@@ -26,18 +27,19 @@ def strengths(strengths_preceptor):
         ],
         max_tokens=500,
     )
-
     return response['choices'][0]['message']['content'].strip()
 
 def improvement(improvement_preceptor):
     prompt = f"""
-    The user is a preceptor in a pediatric clerkship and received the following feedback: {improvement_preceptor}
-    
-    Summarize the preceptor's opportunities for improvement briefly. 
+    You are an expert in pediatric medical education.
+
+    A preceptor in a pediatric clerkship received the following feedback regarding opportunities for improvement:
+    {improvement_preceptor}
+
+    Please provide a concise summary of this individual's opportunities for improvement.
+    In your summary, refer only to the individual as "preceptor" when describing actions or behaviors.
+    Assume that the feedback pertains exclusively to one individual.
     """
-
-
-    # Call OpenAI API using the ChatCompletion method
     response = openai.ChatCompletion.create(
         model="gpt-4",
         messages=[
@@ -46,8 +48,8 @@ def improvement(improvement_preceptor):
         ],
         max_tokens=500,
     )
-
     return response['choices'][0]['message']['content'].strip()
+
     
 ########################################
 # 1) OPENAI & FIREBASE SETUP
