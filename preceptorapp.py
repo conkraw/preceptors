@@ -338,11 +338,9 @@ if analysis_report_file is not None:
                 
                 # Write evaluation question scores.
                 # Assume that the remaining numeric columns (not part of the known text fields) are the evaluation questions.
-                known_cols = {"Evaluator", "Evaluator Email", "Rotation Period", 
-                              "strengths_preceptor", "improvement_preceptor", 
-                              "strengths_summary", "improvement_summary", 
-                              "num_evaluations", "Form Record"}
+                known_cols = {"Evaluator", "Evaluator Email", "Rotation Period", "strengths_preceptor", "improvement_preceptor", "strengths_summary", "improvement_summary", "num_evaluations", "Form Record"}
                 document.add_heading("Evaluation Scores", level=2)
+                
                 for col in df_final.columns:
                     if col not in known_cols and pd.api.types.is_numeric_dtype(df_final[col]):
                         # Write each question on one line with its average score formatted to 2 decimals
@@ -354,16 +352,16 @@ if analysis_report_file is not None:
                 document.add_paragraph(str(row["Rotation Period"]))
                 
                 # Write all strengths and opportunities for improvement comments
-                #document.add_heading("Strengths Comments", level=2)
-                #document.add_paragraph(str(row["strengths_preceptor"]))
-                #document.add_heading("Opportunities for Improvement Comments", level=2)
-                #document.add_paragraph(str(row["improvement_preceptor"]))
+                document.add_heading("Strengths Comments", level=2)
+                document.add_paragraph(str(row["strengths_preceptor"]))
+                document.add_heading("Opportunities for Improvement Comments", level=2)
+                document.add_paragraph(str(row["improvement_preceptor"]))
                 
                 # Write the summary fields
-                #document.add_heading("Strengths Summary", level=2)
-                #document.add_paragraph(str(row["strengths_summary"]))
-                #document.add_heading("Opportunities for Improvement Summary", level=2)
-                #document.add_paragraph(str(row["improvement_summary"]))
+                document.add_heading("Strengths Summary", level=2)
+                document.add_paragraph(str(row["strengths_summary"]))
+                document.add_heading("Opportunities for Improvement Summary", level=2)
+                document.add_paragraph(str(row["improvement_summary"]))
                 
                 # Save the document to a temporary in-memory buffer
                 doc_buffer = io.BytesIO()
@@ -371,18 +369,18 @@ if analysis_report_file is not None:
                 doc_buffer.seek(0)
                 
                 # Create a filename safe for the evaluator (using evaluator's name)
-        #        safe_name = "".join(c for c in row['Evaluator'] if c.isalnum() or c in (' ', '_')).rstrip().replace(" ", "_")
-        #        filename = f"{safe_name}.docx"
+                safe_name = "".join(c for c in row['Evaluator'] if c.isalnum() or c in (' ', '_')).rstrip().replace(" ", "_")
+                filename = f"{safe_name}.docx"
                 
                 # Write the Word file to the zip archive
-        #        zipf.writestr(filename, doc_buffer.read())
+                zipf.writestr(filename, doc_buffer.read())
         
         # Finalize the zip file and get its binary content
-        #zip_buffer.seek(0)
-        #zip_data = zip_buffer.getvalue()
+        zip_buffer.seek(0)
+        zip_data = zip_buffer.getvalue()
         
         # Provide a download button for the zip file (Streamlit)
-        #st.download_button(label="Download Evaluator Word Files",data=zip_data,file_name="evaluators.zip",mime="application/zip")
+        st.download_button(label="Download Evaluator Word Files",data=zip_data,file_name="evaluators.zip",mime="application/zip")
 
     except Exception as e:
         st.error(f"Error loading file: {e}")
