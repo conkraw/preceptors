@@ -78,10 +78,11 @@ if analysis_report_file is not None:
         # Optionally, remove the question columns if they are no longer needed
         question_columns = [col for col in df.columns if re.match(r'^\d+\s+Question$', col)]
         df.drop(columns=question_columns, inplace=True)
-
+        st.write(list(df.columns))
         st.dataframe(df)
     except Exception as e:
         st.error(f"Error loading file: {e}")
+        
 if evaluation_due_dates_file is not None:
     try:
         # Determine the file type and load accordingly
