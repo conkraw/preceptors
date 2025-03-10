@@ -199,8 +199,8 @@ if analysis_report_file is not None:
         final_group_cols = ["Evaluator", "Evaluator Email"]
         df_final = df_grouped.groupby(final_group_cols, as_index=False).agg(agg_funcs)
 
-        df_final["strengths_summary"] = df_final["strengths_preceptor"].apply(strengths)
-        df_final["improvement_summary"] = df_final["improvement_preceptor"].apply(improvement)
+        df_final["strengths_summary"] = df_final.apply(lambda row: strengths(row["strengths_preceptor"], row["Evaluator"]), axis=1)
+        df_final["improvement_summary"] = df_final.apply(lambda row: improvement(row["improvement_preceptor"], row["Evaluator"]), axis=1)
 
         # Display the final aggregated DataFrame with the count of evaluations
         st.dataframe(df_final)
