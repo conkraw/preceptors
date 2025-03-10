@@ -143,13 +143,19 @@ if analysis_report_file is not None:
         # Optionally, aggregate the Form Record if needed (or drop it)
         if "Form Record" in df_grouped.columns:
             agg_funcs["Form Record"] = lambda x: ", ".join([str(item) for item in x.dropna().unique()])
+            
+        df_grouped["num_evaluations"] = 1
+
+        # Extend your aggregation dictionary to sum the number of evaluations
+        agg_funcs["num_evaluations"] = "sum"
         
-        # Group the DataFrame by Evaluator and Evaluator Email using the defined aggregation functions.
+        # Group by Evaluator and Evaluator Email using the updated aggregation functions
+        final_group_cols = ["Evaluator", "Evaluator Email"]
         df_final = df_grouped.groupby(final_group_cols, as_index=False).agg(agg_funcs)
         
-        # Display the final, aggregated DataFrame.
+        # Display the final aggregated DataFrame with the count of evaluations
         st.dataframe(df_final)
-
+    
 
     except Exception as e:
         st.error(f"Error loading file: {e}")
