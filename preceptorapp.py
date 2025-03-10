@@ -11,7 +11,9 @@ import zipfile
 import docx
 
 def is_record_processed(record_id):
-    doc_ref = db.collection("preceptors").document(record_id)
+    # Ensure the record_id is a string before querying Firestore
+    record_id_str = str(record_id)
+    doc_ref = db.collection("preceptors").document(record_id_str)
     return doc_ref.get().exists
         
 def strengths(strengths_preceptor, Evaluator):
