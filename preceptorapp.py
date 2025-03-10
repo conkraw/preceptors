@@ -8,6 +8,8 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 import openai
 from docx import Document
+from docx.enum.section import WD_ORIENT
+from docx.shared import Inches
 from io import BytesIO
 from datetime import datetime
 import zipfile
@@ -35,11 +37,9 @@ def parse_week_value(value):
     Returns a float if possible, otherwise None.
     """
     try:
-        # If already numeric, return as float.
         return float(value)
     except Exception:
         try:
-            # Look for numbers, fractions, or decimals in the string.
             match = re.search(r'([\d./]+)', str(value))
             if match:
                 num_str = match.group(1)
@@ -131,6 +131,13 @@ if analysis_report_file is not None:
                     # Process each evaluator.
                     for evaluator_name, group in evaluator_groups:
                         doc = Document()
+                        # Set document to landscape orientation.
+                        section = doc.sections[0]
+                        section.orientation = WD_ORIENT.LANDSCAPE
+                        new_width, new_height = section.page_height, section.page_width
+                        section.page_width = new_width
+                        section.page_height = new_height
+
                         evaluator_email = group["Evaluator Email"].iloc[0] if "Evaluator Email" in group.columns else "N/A"
                         doc.add_heading(f"Evaluator: {evaluator_name}", level=1)
                         doc.add_paragraph(f"Email: {evaluator_email}")
@@ -143,10 +150,10 @@ if analysis_report_file is not None:
                         for col in group.columns:
                             if col in ignore_cols:
                                 continue
-                            # If the column header indicates a strengths/areas for improvement question, gather responses.
+                            # For strengths/areas for improvement, collect valid responses only.
                             if "strength" in col.lower() and "improv" in col.lower():
                                 for val in group[col]:
-                                    if pd.notna(val) and str(val).strip().lower() != "nan":
+                                    if pd.notna(val) and str(val).strip().lower() != "nan" and str(val).strip() != "":
                                         strengths_improvement_responses.append(str(val))
                                 continue
 
@@ -154,7 +161,6 @@ if analysis_report_file is not None:
                             numeric_values = []
                             for val in group[col]:
                                 try:
-                                    # Special handling for time worked column.
                                     if "please indicate the amount of time" in col.lower():
                                         parsed = parse_week_value(val)
                                     else:
@@ -166,21 +172,63 @@ if analysis_report_file is not None:
                             if numeric_values:
                                 avg_results[col] = sum(numeric_values) / len(numeric_values)
 
-                        # Add a heading for the average scores.
+                        # Add a heading and table for the average scores.
                         doc.add_heading("Average Scores by Question", level=2)
-                        # Create a table for averages.
-                        table = doc.add_table(rows=1, cols=2)
-                        hdr_cells = table.rows[0].cells
-                        hdr_cells[0].text = "Question"
-                        hdr_cells[1].text = "Average Score"
+                        avg_table = doc.add_table(rows=1, cols=2)
+                        avg_hdr_cells = avg_table.rows[0].cells
+                        avg_hdr_cells[0].text = "Question"
+                        avg_hdr_cells[1].text = "Average Score"
+                        # Set column widths for the average scores table.
+                        for cell in avg_table.columns[0].cells:
+                            cell.width = Inches(4)
+                        for cell in avg_table.columns[1].cells:
+                            cell.width = Inches(2)
+
                         for question, avg in avg_results.items():
-                            row_cells = table.add_row().cells
+                            row_cells = avg_table.add_row().cells
                             row_cells[0].text = question
                             row_cells[1].text = f"{avg:.2f}"
 
-                        # Generate a summary of strengths/areas for improvement if available.
-                        if strengths_improvement_responses:
-                            combined_text = "\n".join(str(resp) for resp in strengths_improvement_responses)
+                        # Create a table for evaluation details (if needed).
+                        doc.add_heading("Evaluation Details", level=2)
+                        eval_table = doc.add_table(rows=1, cols=2)
+                        eval_hdr_cells = eval_table.rows[0].cells
+                        eval_hdr_cells[0].text = "Question"
+                        eval_hdr_cells[1].text = "Response"
+                        # Set column widths for the evaluation details table.
+                        for cell in eval_table.columns[0].cells:
+                            cell.width = Inches(4)
+                        for cell in eval_table.columns[1].cells:
+                            cell.width = Inches(2)
+
+                        # For each row (evaluation) of the evaluator, add the question/response pairs.
+                        for idx, row in group.iterrows():
+                            # Add evaluation period
+                            if "Start Date" in row:
+                                try:
+                                    start_date = pd.to_datetime(row["Start Date"])
+                                    eval_period = start_date.strftime("%B %Y")
+                                except Exception:
+                                    eval_period = str(row["Start Date"])
+                            else:
+                                eval_period = "Evaluation Period Not Provided"
+                            doc.add_paragraph(f"Evaluation Period: {eval_period}", style="List Paragraph")
+
+                            # Add each question/response pair from this evaluation.
+                            for col in df.columns:
+                                if col in ignore_cols:
+                                    continue
+                                response_text = str(row[col])
+                                para = doc.add_paragraph()
+                                para.add_run(f"Question: ").bold = True
+                                para.add_run(col)
+                                para.add_run("  |  Response: ").bold = True
+                                para.add_run(response_text)
+
+                        # Generate a summary for strengths/areas for improvement if valid responses exist.
+                        valid_responses = [resp for resp in strengths_improvement_responses if resp.strip() != ""]
+                        if valid_responses:
+                            combined_text = "\n".join(valid_responses)
                             prompt = (
                                 "Please provide a professional and formative summary of the following strengths "
                                 "and areas for improvement responses. The summary should be upbeat, constructive, "
@@ -189,7 +237,7 @@ if analysis_report_file is not None:
                             )
                             try:
                                 response = openai.Completion.create(
-                                    engine="text-davinci-003",
+                                    engine="gpt-4",
                                     prompt=prompt,
                                     max_tokens=150,
                                     temperature=0.7,
@@ -200,12 +248,14 @@ if analysis_report_file is not None:
                             doc.add_heading("Summary of Strengths and Areas for Improvement", level=2)
                             doc.add_paragraph(summary)
 
-                        # Save the document to a BytesIO stream.
+                        # Insert a page break between evaluators.
+                        doc.add_page_break()
+
+                        # Save the document to a BytesIO stream and add it to the ZIP.
                         doc_io = BytesIO()
                         doc.save(doc_io)
                         doc_io.seek(0)
                         filename = f"{evaluator_name.replace(' ', '_')}_report.docx"
-                        # Add this document to the ZIP file.
                         zipf.writestr(filename, doc_io.getvalue())
 
                 # Finalize the ZIP buffer.
@@ -238,6 +288,5 @@ if evaluation_due_dates_file is not None:
             st.dataframe(dfe)
     except Exception as e:
         st.error(f"Error loading evaluation due dates file: {e}")
-
 
 
