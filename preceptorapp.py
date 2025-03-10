@@ -121,6 +121,38 @@ if analysis_report_file is not None:
         # Display the final aggregated DataFrame in your Streamlit app
         st.dataframe(df_grouped)
 
+        # Further aggregate so that each unique evaluator is summarized on one row.
+        # We will group by Evaluator and Evaluator Email.
+        final_group_cols = ["Evaluator", "Evaluator Email"]
+        
+        # Define aggregation functions for each column:
+        agg_funcs = {
+            # For Rotation Period: join unique periods with a comma
+            "Rotation Period": lambda x: ", ".join(sorted(set(x.dropna()))),
+            # For strengths and improvements: join unique responses with a newline
+            "strengths_preceptor": lambda x: "\n".join(x.dropna().unique()),
+            "improvement_preceptor": lambda x: "\n".join(x.dropna().unique())
+        }
+        
+        # Identify the evaluation score columns (all numeric columns other than the ones we already aggregated)
+        score_columns = [col for col in df_grouped.columns 
+                         if col not in ["Evaluator", "Evaluator Email", "Rotation Period", 
+                                        "strengths_preceptor", "improvement_preceptor", "Form Record"]]
+        
+        # For each score column, take the mean (this will average the score for each question)
+        for col in score_columns:
+            agg_funcs[col] = "mean"
+        
+        # Optionally, if you want to aggregate the Form Record (or you can drop it), do something similar:
+        if "Form Record" in df_grouped.columns:
+            agg_funcs["Form Record"] = lambda x: ", ".join(x.dropna().unique())
+        
+        # Group the DataFrame by Evaluator and Evaluator Email using the defined aggregation functions.
+        df_final = df_grouped.groupby(final_group_cols, as_index=False).agg(agg_funcs)
+        
+        # Display the final, aggregated DataFrame.
+        st.dataframe(df_final)
+
     except Exception as e:
         st.error(f"Error loading file: {e}")
         
