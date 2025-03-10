@@ -34,7 +34,7 @@ with col1:
     st.subheader("Setup Analysis Report")
     # Embed the website so users can view it directly
     components.iframe(
-    "https://oasis.hersheymed.net/",height=600)
+    "https://oasis.hersheymed.net/")
     # File uploader for the analysis report (adjust allowed types as needed)
     analysis_report_file = st.file_uploader("Upload Analysis Report", type=["pdf", "docx", "csv"])
 
