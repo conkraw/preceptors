@@ -282,11 +282,11 @@ if analysis_report_file is not None:
                 "Form Record": str(selected_candidate["Form Record"]),
                 "spotlight_summary": spotlight_reason,
                 "Rotation Period": selected_candidate["Rotation Period"],
-                "num_evaluations": selected_candidate["num_evaluations"],
+                "num_evaluations": int(selected_candidate["num_evaluations"]),  # convert to Python int
                 "strengths_preceptor": selected_candidate["strengths_preceptor"],
                 "improvement_preceptor": selected_candidate["improvement_preceptor"]
-                # Add additional fields as needed.
             }
+
             
             db.collection("spotlight").document(selected_candidate["Evaluator"]).set(record)
             st.success(f"Spotlight selected: {selected_candidate['Evaluator']}")
