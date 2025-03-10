@@ -42,10 +42,28 @@ with col2:
     # File uploader for evaluation due dates (adjust allowed types as needed)
     evaluation_due_dates_file = st.file_uploader("Upload Evaluation Due Dates", type=["csv", "xlsx", "pdf"])
 
-# You can add additional logic here to process the uploaded files
 if analysis_report_file is not None:
-    st.write("Processing Analysis Report...")
-    # process the file as needed
+    try:
+        # Determine the file type and load accordingly
+        if analysis_report_file.name.endswith("csv"):
+            dfa = pd.read_csv(uploaded_file)
+        elif analysis_report_file.name.endswith("xlsx"):
+            dfa = pd.read_excel(uploaded_file)
+        # Display the DataFrame in the app
+        st.dataframe(dfa)
+    except Exception as e:
+        st.error(f"Error loading file: {e}")
 if evaluation_due_dates_file is not None:
-    st.write("Processing Evaluation Due Dates...")
-    # process the file as needed
+    try:
+        # Determine the file type and load accordingly
+        if evaluation_due_dates_file.name.endswith("csv"):
+            dfe = pd.read_csv(uploaded_file)
+        elif evaluation_due_dates_file.name.endswith("xlsx"):
+            dfe = pd.read_excel(uploaded_file)
+        # Display the DataFrame in the app
+        st.dataframe(dfe)
+    except Exception as e:
+        st.error(f"Error loading file: {e}")
+
+
+
