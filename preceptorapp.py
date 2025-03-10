@@ -46,9 +46,9 @@ if analysis_report_file is not None:
     try:
         # Determine the file type and load accordingly
         if analysis_report_file.name.endswith("csv"):
-            dfa = pd.read_csv(uploaded_file)
+            dfa = pd.read_csv(analysis_report_file)
         elif analysis_report_file.name.endswith("xlsx"):
-            dfa = pd.read_excel(uploaded_file)
+            dfa = pd.read_excel(analysis_report_file)
         # Display the DataFrame in the app
         st.dataframe(dfa)
     except Exception as e:
@@ -57,9 +57,9 @@ if evaluation_due_dates_file is not None:
     try:
         # Determine the file type and load accordingly
         if evaluation_due_dates_file.name.endswith("csv"):
-            dfe = pd.read_csv(uploaded_file)
+            dfe = pd.read_csv(evaluation_due_dates_file)
         elif evaluation_due_dates_file.name.endswith("xlsx"):
-            dfe = pd.read_excel(uploaded_file)
+            dfe = pd.read_excel(evaluation_due_dates_file)
         # Display the DataFrame in the app
         st.dataframe(dfe)
     except Exception as e:
