@@ -80,6 +80,55 @@ if analysis_report_file is not None:
         df.drop(columns=question_columns, inplace=True)
         st.write(list(df.columns))
         st.dataframe(df)
+        # 1. Create a new column 'Rotation Period' from 'Start Date'
+        #    Format the date as "Month Year" (e.g., "July 2024")
+        df['Rotation Period'] = pd.to_datetime(df['Start Date'], errors='coerce').dt.strftime('%B %Y')
+        
+        # 2. Compute the average score for the evaluation columns (columns 5 to 20)
+        score_columns = [
+            "Checked to see where my current knowledge and skills were.",
+            "Built on my knowledge and skill base.",
+            "Demonstrated respect for me as a learner.",
+            "Demonstrated respect for patients, staff, care providers, and other specialties.",
+            "Used high value, cost conscious care considerations in clinical decision making.",
+            "Encouraged me to integrate high value, cost conscious care in my clinical decision making (e.g., note writing, assessment and plan, presentations).",
+            "Created a safe environment for me to ask questions and voice uncertainty.",
+            "Asked me to include my differential diagnosis, assessment and plan in my case presentations.",
+            "Asked me to provide the rationale for my clinical decisions in my case presentations.",
+            "Asked me to investigate a relevant clinical topic and report back.",
+            "Directly observed me (e.g., taking a history, doing a physical exam, communicating with patients).",
+            "Provided feedback by giving specific examples of what I did well.",
+            "Provided feedback by giving specific examples of how I could improve.",
+            "Helped me develop a plan to improve my knowledge or skills.",
+            "My preceptor was a positive role model for me.",
+            "(FQ) Overall, this faculty/preceptor/resident helped me to further my clinical learning."
+        ]
+        
+        # Convert score columns to numeric (if they aren't already) and compute the row-wise mean
+        df['Average Score'] = df[score_columns].apply(pd.to_numeric, errors='coerce').mean(axis=1)
+        
+        # 3. Drop the original date columns
+        df.drop(columns=["Start Date", "End Date"], inplace=True)
+        
+        # 4. Drop the evaluation score columns (columns 5 to 20)
+        df.drop(columns=score_columns, inplace=True)
+        
+        # 5. Drop column 21: "Please indicate the amount of time you worked with this preceptor in this rotation."
+        df.drop(columns=["Please indicate the amount of time you worked with this preceptor in this rotation."], inplace=True)
+        
+        # 6. Rename column 22 ("Please indicate this educator's strengths") to 'strengths_preceptor'
+        df.rename(columns={"Please indicate this educator's strengths": "strengths_preceptor"}, inplace=True)
+        
+        # 7. Rename column 23 ("Areas for Improvement") to 'improvement_preceptor'
+        df.rename(columns={"Areas for Improvement": "improvement_preceptor"}, inplace=True)
+        
+        # (Optional) Reorder columns if you want a specific order:
+        desired_order = ['Rotation Period', 'Evaluator', 'Evaluator Email', 'Form Record', 'Average Score', 'strengths_preceptor', 'improvement_preceptor']
+        df = df[[col for col in desired_order if col in df.columns]]
+        
+        # Now you can display the final DataFrame
+        st.dataframe(df)
+
     except Exception as e:
         st.error(f"Error loading file: {e}")
         
