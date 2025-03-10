@@ -51,6 +51,8 @@ if analysis_report_file is not None:
             dfa = pd.read_excel(analysis_report_file)
         # Display the DataFrame in the app
         st.dataframe(dfa)
+        st.write(list(dfa.columns))
+        
     except Exception as e:
         st.error(f"Error loading file: {e}")
 if evaluation_due_dates_file is not None:
