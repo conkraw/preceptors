@@ -276,9 +276,14 @@ if analysis_report_file is not None:
         final_group_cols = ["Evaluator", "Evaluator Email"]
         df_final = df_grouped.groupby(final_group_cols, as_index=False).agg(agg_funcs)
 
-        df_final["strengths_summary"] = df_final.apply(lambda row: strengths(row["strengths_preceptor"], row["Evaluator"]), axis=1)
-        df_final["improvement_summary"] = df_final.apply(lambda row: improvement(row["improvement_preceptor"], row["Evaluator"]), axis=1)
-
+        #############################################################################################################################
+        df_final["strengths_summary"] = "test"
+        df_final["improvement_summary"] = "test"
+        
+        #df_final["strengths_summary"] = df_final.apply(lambda row: strengths(row["strengths_preceptor"], row["Evaluator"]), axis=1)
+        #df_final["improvement_summary"] = df_final.apply(lambda row: improvement(row["improvement_preceptor"], row["Evaluator"]), axis=1)
+        #############################################################################################################################
+        
         # Map the values to df_final
         df_final['total_evaluations'] = df_final['Evaluator'].map(grouped['total_evaluations'])
         df_final['percentage_on_time'] = df_final['Evaluator'].map(grouped['percentage_on_time'])
@@ -309,9 +314,12 @@ if analysis_report_file is not None:
         else:
             # --- STEP 2: Randomly Select a Spotlight Candidate ---
             selected_candidate = eligible_df.sample(n=1).iloc[0]
-            
+
+            ###########################################################################################
             # Generate a spotlight summary using ChatGPT (based on the strengths feedback)
-            spotlight_reason = generate_spotlight_summary(selected_candidate["strengths_preceptor"], selected_candidate["Evaluator"])
+            #spotlight_reason = generate_spotlight_summary(selected_candidate["strengths_preceptor"], selected_candidate["Evaluator"])
+            spotlight_reason = "test"
+            ###########################################################################################
             
             # Add the spotlight summary to the DataFrame (if desired)
             df_final.loc[df_final["Evaluator"] == selected_candidate["Evaluator"], "spotlight_summary"] = spotlight_reason
