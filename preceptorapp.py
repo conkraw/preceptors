@@ -433,10 +433,10 @@ if analysis_report_file is not None:
 
                 
                 # Write header info: evaluator's name, email, and number of evaluations
-                heading = document.add_heading(level=1)
-                bold_run = heading.add_run("Preceptor: ")
+                paragraph = document.add_paragraph()
+                bold_run = paragraph.add_run("Preceptor: ")
                 bold_run.bold = True
-                heading.add_run(row['Evaluator'])
+                paragraph.add_run(row['Evaluator'])
                 
                 document.add_paragraph("")
                 #document.add_paragraph(f"Email: {row['Evaluator Email']}")
