@@ -21,7 +21,17 @@ from docx.shared import Inches
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 
-
+def shade_cell(cell, shade_color="D3D3D3"):
+    """
+    Applies background shading to a table cell. 
+    shade_color should be a hex color code (without the #).
+    For example, 'D3D3D3' is a light gray.
+    """
+    tcPr = cell._tc.get_or_add_tcPr()
+    shd = OxmlElement('w:shd')
+    shd.set(qn('w:fill'), shade_color)
+    tcPr.append(shd)
+    
 def set_cell_border(cell, **kwargs):
     """
     Set cell borders. Accepts arguments:
@@ -549,6 +559,10 @@ if analysis_report_file is not None:
                 header_cells = header_row.cells
                 header_cells[0].text = "Evaluation Metric"
                 header_cells[1].text = "Result"
+
+                # Shade the header cells a light gray
+                shade_cell(header_cells[0], "D3D3D3")  # Light gray
+                shade_cell(header_cells[1], "D3D3D3")  # Light gray
                 
                 # Bold the header text
                 for cell in header_cells:
