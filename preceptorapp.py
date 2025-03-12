@@ -10,6 +10,7 @@ import openai
 import zipfile
 import docx
 import random 
+import numpy as np
 
 def generate_spotlight_summary(strengths_preceptor, Evaluator):
     prompt = f"""
