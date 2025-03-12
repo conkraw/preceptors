@@ -438,9 +438,12 @@ if analysis_report_file is not None:
         # --- STEP 1: Identify Eligible Preceptors ---
         # Define the known text fields to identify numeric score columns.
         known_cols = {"Evaluator", "Evaluator Email", "Rotation Period", "strengths_preceptor", "improvement_preceptor", "strengths_summary", "improvement_summary", "num_evaluations", "Form Record", "total_evaluations", "percentage_on_time"}
-        
+
+        exclude_cols = {"total_evaluations", "percentage_on_time"}
+        score_cols = [col for col in df_final.columns if pd.api.types.is_numeric_dtype(df_final[col]) and col not in exclude_cols]
+
         # Identify evaluation score columns as those numeric columns not in known_cols.
-        score_cols = [col for col in df_final.columns if col not in known_cols and pd.api.types.is_numeric_dtype(df_final[col])]
+        #score_cols = [col for col in df_final.columns if col not in known_cols and pd.api.types.is_numeric_dtype(df_final[col])]
         
         # Filter for eligible preceptors: every evaluation score must be 4.5 or above.
         eligible_df = df_final[df_final[score_cols].ge(4.5).all(axis=1)].copy()
