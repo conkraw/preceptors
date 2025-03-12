@@ -433,7 +433,11 @@ if analysis_report_file is not None:
 
                 
                 # Write header info: evaluator's name, email, and number of evaluations
-                document.add_heading(f"Preceptor: {row['Evaluator']}", level=1)
+                heading = document.add_heading(level=1)
+                bold_run = heading.add_run("Preceptor: ")
+                bold_run.bold = True
+                heading.add_run(row['Evaluator'])
+                
                 document.add_paragraph("")
                 #document.add_paragraph(f"Email: {row['Evaluator Email']}")
                 #document.add_paragraph(f"Number of Evaluations: {row['num_evaluations']}")
@@ -446,7 +450,7 @@ if analysis_report_file is not None:
                 
                 # Define column widths if desired
                 col_width_left = Inches(3.0)
-                col_width_right = Inches(3.0)
+                col_width_right = Inches(3.14)
                 
                 # Row 0: Email
                 #details_table.cell(0, 0).text = "Email:"
@@ -455,7 +459,7 @@ if analysis_report_file is not None:
                 header_row = details_table.rows[0]
                 header_cells = header_row.cells
                 header_cells[0].text = "Evaluation Metric"
-                header_cells[1].text = "Average Result"
+                header_cells[1].text = "Result"
                 
                 # Bold the header text
                 for cell in header_cells:
