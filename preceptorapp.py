@@ -454,7 +454,7 @@ if analysis_report_file is not None:
                 header_row = table.rows[0]
                 header_cells = header_row.cells
                 header_cells[0].text = "Evaluation Question"
-                header_cells[1].text = "Average Score"
+                header_cells[1].text = "Score"
                 
                 # Bold the header text
                 for cell in header_cells:
