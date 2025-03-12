@@ -612,11 +612,11 @@ if analysis_report_file is not None:
                 details_table.cell(2, 1).text = str(row['num_evaluations'])
                 
                 # Row 3: Number of Student Evaluations Completed by Evaluator
-                details_table.cell(3, 0).text = "Number of Student Evaluations Completed by Evaluator:"
+                details_table.cell(3, 0).text = "Student Evaluations Completed By Preceptor:"
                 details_table.cell(3, 1).text = str(row['total_evaluations'])
                 
                 # Row 4: Percentage of Student Evaluations Completed within 14 days
-                details_table.cell(4, 0).text = "Percentage of Student Evaluations Completed within 14 days:"
+                details_table.cell(4, 0).text = "On-Time Completion Rate (%):"
                 details_table.cell(4, 1).text = f"{row['percentage_on_time']:.1f}%"
 
                 # Optionally set column widths
