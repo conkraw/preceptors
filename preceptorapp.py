@@ -558,6 +558,9 @@ if analysis_report_file is not None:
                 p_value = cell_value.paragraphs[0]
                 p_value.add_run(row['Evaluator'])
 
+                shade_cell(cell_label, "ADD8E6")
+                shade_cell(cell_value, "ADD8E6")
+
                 document.add_paragraph("")
 
                 # Create a 5-row, 2-column table
