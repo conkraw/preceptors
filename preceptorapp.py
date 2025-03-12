@@ -94,6 +94,9 @@ def create_comment_table(document, header_text, content_text, table_width=6.14):
     # 1) Header row
     hdr_cell = table.cell(0, 0)
     hdr_cell.text = header_text
+
+    shade_cell(hdr_cell, "D3D3D3")  # Light gray
+    
     for paragraph in hdr_cell.paragraphs:
         for run in paragraph.runs:
             run.bold = True
@@ -627,6 +630,9 @@ if analysis_report_file is not None:
                 header_cells = header_row.cells
                 header_cells[0].text = "Evaluation Question"
                 header_cells[1].text = "Score"
+
+                shade_cell(header_cells[0], "D3D3D3")  # Light gray
+                shade_cell(header_cells[1], "D3D3D3")  # Light gray
                 
                 # Bold the header text
                 for cell in header_cells:
