@@ -494,7 +494,7 @@ if analysis_report_file is not None:
                 
 
                 # Row 1: Rotation Periods
-                details_table.cell(1, 0).text = "Rotation Period:"
+                details_table.cell(1, 0).text = "Rotation Period (s):"
                 details_table.cell(1, 1).text = str(row['Rotation Period'])
 
                 # Row 2: Number of Evaluations
@@ -509,7 +509,6 @@ if analysis_report_file is not None:
                 details_table.cell(4, 0).text = "Percentage of Student Evaluations Completed within 14 days:"
                 details_table.cell(4, 1).text = f"{row['percentage_on_time']:.1f}%"
 
-                
                 # Optionally set column widths
                 for row_idx in range(4):
                     details_table.cell(row_idx, 0).width = col_width_left
@@ -522,8 +521,6 @@ if analysis_report_file is not None:
                     "improvement_preceptor", "strengths_summary", "improvement_summary",
                     "num_evaluations", "Form Record"
                 }
-                #document.add_heading("Evaluation Average Scores", level=2)
-                
                 document.add_paragraph("")
                 
                 # Define a standard border style
@@ -541,13 +538,14 @@ if analysis_report_file is not None:
                 header_row = table.rows[0]
                 header_cells = header_row.cells
                 header_cells[0].text = "Evaluation Question"
-                header_cells[1].text = "Average Score"
+                header_cells[1].text = "Score"
                 
                 # Bold the header text
                 for cell in header_cells:
                     for paragraph in cell.paragraphs:
                         for run in paragraph.runs:
                             run.font.bold = True
+                            run.font.size = Pt(9) 
                 
                 # Set the header cell widths
                 header_cells[0].width = evaluator_col_width
@@ -582,7 +580,12 @@ if analysis_report_file is not None:
                     # Set widths
                     row_cells[0].width = evaluator_col_width
                     row_cells[1].width = score_col_width
-                    
+
+                    for cell in row_cells:
+                        for paragraph in cell.paragraphs:
+                            for run in paragraph.runs:
+                                run.font.size = Pt(9)
+                                
                     # For each data row: remove top/bottom to avoid horizontal lines between rows
                     # Keep left and right borders. 
                     # We'll add a bottom border only if it's the last row, to "close" the table.
@@ -596,9 +599,6 @@ if analysis_report_file is not None:
                         right=border_style,
                         bottom=border_style if is_last_row else None
                     )
-                # Write rotation period(s)
-                #document.add_heading("Rotation Period(s)", level=2)
-                
                 
                 # Write all strengths and opportunities for improvement comments
                 document.add_heading("Strengths Comments", level=2)
