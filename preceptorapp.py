@@ -382,14 +382,28 @@ if analysis_report_file is not None:
                 
                 # Write evaluation question scores.
                 # Assume that the remaining numeric columns (not part of the known text fields) are the evaluation questions.
-                known_cols = {"Evaluator", "Evaluator Email", "Rotation Period", "strengths_preceptor", "improvement_preceptor", "strengths_summary", "improvement_summary", "num_evaluations", "Form Record"}
+                known_cols = {
+                    "Evaluator", "Evaluator Email", "Rotation Period", "strengths_preceptor",
+                    "improvement_preceptor", "strengths_summary", "improvement_summary",
+                    "num_evaluations", "Form Record"
+                }
                 document.add_heading("Evaluation Scores", level=2)
                 
+                # Create a table with a header row
+                table = document.add_table(rows=1, cols=2)
+                header_cells = table.rows[0].cells
+                header_cells[0].text = "Evaluation Question"
+                header_cells[1].text = "Average Score"
+                
+                # Add a row for each evaluation question
                 for col in df_final.columns:
                     if col not in known_cols and pd.api.types.is_numeric_dtype(df_final[col]):
-                        # Write each question on one line with its average score formatted to 2 decimals
-                        clean_col = col.rstrip('.')
-                        document.add_paragraph(f"{col}: {row[col]:.2f}")
+                        # Create a new row in the table
+                        row_cells = table.add_row().cells
+                        # Use the column name as the question and format the score to 2 decimals
+                        row_cells[0].text = col.rstrip('.')  # Clean up the column name if necessary
+                        row_cells[1].text = f"{row[col]:.2f}"
+                
                 
                 # Write rotation period(s)
                 document.add_heading("Rotation Period(s)", level=2)
