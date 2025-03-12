@@ -11,6 +11,7 @@ import zipfile
 import docx
 import random 
 import numpy as np
+from docx.shared import Inches
 
 def generate_spotlight_summary(strengths_preceptor, Evaluator):
     prompt = f"""
@@ -398,21 +399,40 @@ if analysis_report_file is not None:
                 }
                 document.add_heading("Evaluation Scores", level=2)
                 
-                # Create a table with a header row
+                # Create a table with a header row and apply a style that shows borders
                 table = document.add_table(rows=1, cols=2)
+                table.style = 'Table Grid'  # This style adds gridlines between rows and cells
+                
+                # Define the desired widths
+                evaluator_col_width = Inches(4.76)
+                score_col_width = Inches(1.24)
+                
+                # Configure the header row
                 header_cells = table.rows[0].cells
                 header_cells[0].text = "Evaluation Question"
                 header_cells[1].text = "Average Score"
                 
+                # Bold header text by accessing the paragraph's run
+                for cell in header_cells:
+                    for paragraph in cell.paragraphs:
+                        for run in paragraph.runs:
+                            run.font.bold = True
+                
+                # Set header cell widths
+                header_cells[0].width = evaluator_col_width
+                header_cells[1].width = score_col_width
+                
                 # Add a row for each evaluation question
                 for col in df_final.columns:
                     if col not in known_cols and pd.api.types.is_numeric_dtype(df_final[col]):
-                        # Create a new row in the table
                         row_cells = table.add_row().cells
-                        # Use the column name as the question and format the score to 2 decimals
+                        # Set the text for each cell
                         row_cells[0].text = col.rstrip('.')  # Clean up the column name if necessary
                         row_cells[1].text = f"{row[col]:.2f}"
-                
+                        # Set cell widths for each row
+                        row_cells[0].width = evaluator_col_width
+                        row_cells[1].width = score_col_width
+
                 
                 # Write rotation period(s)
                 document.add_heading("Rotation Period(s)", level=2)
