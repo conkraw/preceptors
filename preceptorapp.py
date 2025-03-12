@@ -20,6 +20,7 @@ from docx import Document
 from docx.shared import Inches
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
+
 def set_cell_border(cell, **kwargs):
     """
     Set cell borders. Accepts arguments:
@@ -41,6 +42,7 @@ def set_cell_border(cell, **kwargs):
                     element.set(qn('w:{}'.format(key)), value)
 
 # A small helper to create a two-row table (header row + content row)
+
 def create_comment_table(document, header_text, content_text):
     table = document.add_table(rows=2, cols=1)
     table.style = 'Table Grid'  # gives a simple bordered look
@@ -562,7 +564,7 @@ if analysis_report_file is not None:
                 document.add_paragraph("")
                 
                 # Define a standard border style
-                border_style = {"sz": "12", "val": "single", "color": "000000"}
+                border_style = {"sz": "4", "val": "single", "color": "000000"}
                 
                 # Create the table (1 header row, 2 columns)
                 table = document.add_table(rows=1, cols=2)
@@ -638,17 +640,6 @@ if analysis_report_file is not None:
                         bottom=border_style if is_last_row else None
                     )
                 
-                # Write all strengths and opportunities for improvement comments
-                #document.add_heading("Strengths Comments", level=2)
-                #document.add_paragraph(str(row["strengths_preceptor"]))
-                #document.add_heading("Opportunities for Improvement Comments", level=2)
-                #document.add_paragraph(str(row["improvement_preceptor"]))
-                
-                # Write the summary fields
-                #document.add_heading("Strengths Summary", level=2)
-                #document.add_paragraph(str(row["strengths_summary"]))
-                #document.add_heading("Opportunities for Improvement Summary", level=2)
-                #document.add_paragraph(str(row["improvement_summary"]))
 
                 document.add_paragraph("")
                 create_comment_table(document, "Strengths Comments", row["strengths_preceptor"])
