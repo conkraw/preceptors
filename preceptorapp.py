@@ -151,7 +151,7 @@ if evaluation_due_dates_file is not None:
         grouped['percentage_on_time'] = ((grouped['on_time_evaluations'] / grouped['total_evaluations']) * 100).round(1)
 
         st.dataframe(grouped)
-        #grouped = grouped.set_index('Evaluator')
+        grouped = grouped.set_index('Evaluator')
         
 
     except Exception as e:
