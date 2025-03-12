@@ -557,9 +557,9 @@ if analysis_report_file is not None:
                 
                 # Set each column's cell widths individually:
                 for cell in table.columns[0].cells:
-                    set_cell_width(cell, 3)  # 3 inches for first column
+                    set_cell_width(cell, 3.45)  # 3.45 inches for first column
                 for cell in table.columns[1].cells:
-                    set_cell_width(cell, 3.14)  # 3.14 inches for second column
+                    set_cell_width(cell, 2.69)  # 2.69 inches for second column
                 
                 # Populate the cells with your content:
                 cell_label = table.rows[0].cells[0]
