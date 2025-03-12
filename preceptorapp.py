@@ -394,6 +394,7 @@ if evaluation_due_dates_file is not None:
             dfe = pd.read_excel(evaluation_due_dates_file)
         # Display the DataFrame in the app
         dfe = dfe.loc[dfe['Location'] != "LIC - Kaiser Permanente"]
+        dfe = dfe[['End Date', 'Evaluator', 'Submit Date']]
         
         st.dataframe(dfe)
         
