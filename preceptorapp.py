@@ -21,6 +21,7 @@ from docx.shared import Inches
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 
+
 def set_cell_border(cell, **kwargs):
     """
     Set cell borders. Accepts arguments:
@@ -43,16 +44,33 @@ def set_cell_border(cell, **kwargs):
 
 # A small helper to create a two-row table (header row + content row)
 
-def create_comment_table(document, header_text, content_text):
+
+
+def set_table_width(table, width_in_inches):
+    """
+    Force the overall table width (in inches).
+    """
+    # Convert inches to twips (1 inch = 1440 twips)
+    width_in_twips = int(width_in_inches * 1440)
+
+    tblPr = table._tblPr
+    tblW = tblPr.find(qn('w:tblW'))
+    if tblW is None:
+        tblW = OxmlElement('w:tblW')
+        tblPr.append(tblW)
+    tblW.set(qn('w:w'), str(width_in_twips))
+    tblW.set(qn('w:type'), 'dxa')  # 'dxa' means absolute width
+
+def create_comment_table(document, header_text, content_text, table_width=6.14):
     table = document.add_table(rows=2, cols=1)
-    table.style = 'Table Grid'  # gives a simple bordered look
+    table.style = 'Table Grid'
+    
+    # Disable autofit to help ensure the width is fixed
+    table.autofit = False
 
-    # Disable autofitting so the column width setting is respected
-    #table.autofit = False
-
-    # Set the single column to 6.14 inches wide
-    table.columns[0].width = Inches(6.14)
-
+    # Force the table to the desired width
+    set_table_width(table, table_width)
+    
     # 1) Header row
     hdr_cell = table.cell(0, 0)
     hdr_cell.text = header_text
@@ -62,8 +80,6 @@ def create_comment_table(document, header_text, content_text):
 
     # 2) Content row
     table.cell(1, 0).text = str(content_text)
-
-    return table
 
     
 def set_cell_width(cell, width_in_inches):
@@ -650,13 +666,13 @@ if analysis_report_file is not None:
                 
 
                 document.add_paragraph("")
-                create_comment_table(document, "Strengths Comments", row["strengths_preceptor"])
+                create_comment_table(document, "Strengths Comments", row["strengths_preceptor"], 6.14)
                 document.add_paragraph("")
-                create_comment_table(document, "Opportunities for Improvement Comments", row["improvement_preceptor"])
+                create_comment_table(document, "Opportunities for Improvement Comments", row["improvement_preceptor"],6.14)
                 document.add_paragraph("")
-                create_comment_table(document, "Strengths Summary", row["strengths_summary"])
+                create_comment_table(document, "Strengths Summary", row["strengths_summary"],6.14)
                 document.add_paragraph("")
-                create_comment_table(document, "Opportunities for Improvement Summary", row["improvement_summary"])
+                create_comment_table(document, "Opportunities for Improvement Summary", row["improvement_summary"],6.14)
 
                 # Save the document to a temporary in-memory buffer
                 doc_buffer = io.BytesIO()
