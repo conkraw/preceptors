@@ -154,7 +154,7 @@ if evaluation_due_dates_file is not None:
         # Calculate the percentage of on-time evaluations per evaluator
         grouped['percentage_on_time'] = ((grouped['on_time_evaluations'] / grouped['total_evaluations']) * 100).round(1)
 
-        st.dataframe(grouped)
+        grouped = grouped.set_index('Evaluator')
 
     except Exception as e:
         st.error(f"Error loading file: {e}")
@@ -278,12 +278,17 @@ if analysis_report_file is not None:
         df_final["strengths_summary"] = df_final.apply(lambda row: strengths(row["strengths_preceptor"], row["Evaluator"]), axis=1)
         df_final["improvement_summary"] = df_final.apply(lambda row: improvement(row["improvement_preceptor"], row["Evaluator"]), axis=1)
 
+        # Map the values to df_final
+        df_final['total_evaluations'] = df_final['Evaluator'].map(grouped['total_evaluations'])
+        df_final['percentage_on_time'] = df_final['Evaluator'].map(grouped['percentage_on_time'])
+
+        
         # Display the final aggregated DataFrame with the count of evaluations
         st.dataframe(df_final)
         
         # --- STEP 1: Identify Eligible Preceptors ---
         # Define the known text fields to identify numeric score columns.
-        known_cols = {"Evaluator", "Evaluator Email", "Rotation Period", "strengths_preceptor", "improvement_preceptor", "strengths_summary", "improvement_summary", "num_evaluations", "Form Record"}
+        known_cols = {"Evaluator", "Evaluator Email", "Rotation Period", "strengths_preceptor", "improvement_preceptor", "strengths_summary", "improvement_summary", "num_evaluations", "Form Record", "total_evaluations", "percentage_on_time"}
         
         # Identify evaluation score columns as those numeric columns not in known_cols.
         score_cols = [col for col in df_final.columns if col not in known_cols and pd.api.types.is_numeric_dtype(df_final[col])]
@@ -371,6 +376,8 @@ if analysis_report_file is not None:
                 document.add_heading(f"Evaluator: {row['Evaluator']}", level=1)
                 document.add_paragraph(f"Email: {row['Evaluator Email']}")
                 document.add_paragraph(f"Number of Evaluations: {row['num_evaluations']}")
+                document.add_paragraph(f"Number of Student Evaluations Completed by Evaluator: {row['total_evaluations']}")
+                document.add_paragraph(f"Number of Student Evaluations Completed within 14 days: {row['percentage_on_time']}")
                 
                 # Write evaluation question scores.
                 # Assume that the remaining numeric columns (not part of the known text fields) are the evaluation questions.
