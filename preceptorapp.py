@@ -12,6 +12,46 @@ import docx
 import random 
 import numpy as np
 from docx.shared import Inches
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
+
+def set_cell_border(cell, top=None, bottom=None, left=None, right=None):
+    """
+    Set cell borders. Each argument (top/bottom/left/right) is a dict of border attributes:
+      {
+        "sz": "12",       # border width
+        "val": "single",  # single, double, etc.
+        "color": "000000" # hex color code (omit #)
+      }
+    Example usage:
+      set_cell_border(cell,
+                      top={"sz": "12", "val": "single", "color": "000000"},
+                      left={"sz": "12", "val": "single", "color": "000000"})
+    """
+    tc = cell._tc
+    tcPr = tc.get_or_add_tcPr()
+    
+    # Map python-docx edge names to the w: tag names
+    # "left" -> "w:left", etc.
+    borders = {
+        'top': 'w:top',
+        'bottom': 'w:bottom',
+        'left': 'w:left',
+        'right': 'w:right'
+    }
+    
+    for edge, edge_data in [('top', top), ('bottom', bottom), ('left', left), ('right', right)]:
+        if edge_data:
+            tag = borders[edge]
+            element = tcPr.find(qn(tag))
+            if element is None:
+                element = OxmlElement(tag)
+                tcPr.append(element)
+            
+            for key, value in edge_data.items():
+                element.set(qn(f"w:{key}"), str(value))
+
+
 
 def generate_spotlight_summary(strengths_preceptor, Evaluator):
     prompt = f"""
@@ -399,41 +439,76 @@ if analysis_report_file is not None:
                 }
                 document.add_heading("Evaluation Average Scores", level=2)
                 
-                # Create a table with a header row and apply a style that shows borders
-                table = document.add_table(rows=1, cols=2)
-                table.style = 'Table Grid'  # This style adds gridlines between rows and cells
+                # Define a standard border style
+                border_style = {"sz": "12", "val": "single", "color": "000000"}
                 
-                # Define the desired widths
+                # Create the table (1 header row, 2 columns)
+                table = document.add_table(rows=1, cols=2)
+                # Do NOT set table.style = 'Table Grid' because we want to manually control borders
+                
+                # Define column widths
                 evaluator_col_width = Inches(6.14)
                 score_col_width = Inches(0.75)
                 
-                # Configure the header row
-                header_cells = table.rows[0].cells
+                # 1) Configure the header row
+                header_row = table.rows[0]
+                header_cells = header_row.cells
                 header_cells[0].text = "Evaluation Question"
-                header_cells[1].text = "Score"
+                header_cells[1].text = "Average Score"
                 
-                # Bold header text by accessing the paragraph's run
+                # Bold the header text
                 for cell in header_cells:
                     for paragraph in cell.paragraphs:
                         for run in paragraph.runs:
                             run.font.bold = True
                 
-                # Set header cell widths
+                # Set the header cell widths
                 header_cells[0].width = evaluator_col_width
                 header_cells[1].width = score_col_width
                 
-                # Add a row for each evaluation question
-                for col in df_final.columns:
-                    if col not in known_cols and pd.api.types.is_numeric_dtype(df_final[col]):
-                        row_cells = table.add_row().cells
-                        # Set the text for each cell
-                        row_cells[0].text = col.rstrip('.')  # Clean up the column name if necessary
-                        row_cells[1].text = f"{row[col]:.2f}"
-                        # Set cell widths for each row
-                        row_cells[0].width = evaluator_col_width
-                        row_cells[1].width = score_col_width
-
+                # For the header row:
+                # - keep top/bottom/left/right, but remove the vertical line in the middle
+                set_cell_border(header_cells[0],
+                    top=border_style,
+                    bottom=border_style,
+                    left=border_style
+                    # no right border here => removes middle line
+                )
+                set_cell_border(header_cells[1],
+                    top=border_style,
+                    bottom=border_style,
+                    right=border_style
+                    # no left border => removes middle line
+                )
                 
+                # 2) Add data rows
+                # Suppose 'question_columns' is a list of the columns that hold numeric data
+                question_columns = [col for col in df_final.columns 
+                                    if col not in known_cols 
+                                    and pd.api.types.is_numeric_dtype(df_final[col])]
+                
+                for i, col in enumerate(question_columns):
+                    row_cells = table.add_row().cells
+                    row_cells[0].text = col.rstrip('.')  # question
+                    row_cells[1].text = f"{row[col]:.2f}"  # average score
+                    
+                    # Set widths
+                    row_cells[0].width = evaluator_col_width
+                    row_cells[1].width = score_col_width
+                    
+                    # For each data row: remove top/bottom to avoid horizontal lines between rows
+                    # Keep left and right borders. 
+                    # We'll add a bottom border only if it's the last row, to "close" the table.
+                    is_last_row = (i == len(question_columns) - 1)
+                    
+                    set_cell_border(row_cells[0],
+                        left=border_style,
+                        bottom=border_style if is_last_row else None
+                    )
+                    set_cell_border(row_cells[1],
+                        right=border_style,
+                        bottom=border_style if is_last_row else None
+                    )
                 # Write rotation period(s)
                 document.add_heading("Rotation Period(s)", level=2)
                 document.add_paragraph(str(row["Rotation Period"]))
