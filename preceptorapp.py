@@ -362,7 +362,7 @@ if analysis_report_file is not None:
             document.save(doc_buffer)
             doc_buffer.seek(0)
             
-            st.download_button(label="Download Spotlight Word Document", data=doc_buffer, file_name=f"{selected_candidate['Evaluator']}_spotlight.docx", mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",key="download_spotlight_doc"  # Unique key for the first button)
+            st.download_button(label="Download Spotlight Word Document", data=doc_buffer, file_name=f"{selected_candidate['Evaluator']}_spotlight.docx", mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",key="download_spotlight_doc")
 
 
         # Create an in-memory zip file
@@ -439,7 +439,7 @@ if analysis_report_file is not None:
         zip_data = zip_buffer.getvalue()
         
         # Provide a download button for the zip file (Streamlit)
-        st.download_button(label="Download Evaluator Word Files",data=zip_data,file_name="evaluators.zip",mime="application/zip",key="download_evaluators_zip"  # Unique key for the second button)
+        st.download_button(label="Download Evaluator Word Files",data=zip_data,file_name="evaluators.zip",mime="application/zip",key="download_evaluators_zip")
 
     except Exception as e:
         st.error(f"Error loading file: {e}")
