@@ -608,7 +608,7 @@ if analysis_report_file is not None:
                 details_table.cell(1, 1).text = str(row['Rotation Period'])
 
                 # Row 2: Number of Evaluations
-                details_table.cell(2, 0).text = "Number of Evaluations:"
+                details_table.cell(2, 0).text = "Preceptor Evaluations Completed By Student:"
                 details_table.cell(2, 1).text = str(row['num_evaluations'])
                 
                 # Row 3: Number of Student Evaluations Completed by Evaluator
