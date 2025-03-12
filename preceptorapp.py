@@ -476,6 +476,9 @@ if analysis_report_file is not None:
             for idx, row in df_final.iterrows():
                 # Create a new Word document for each evaluator
                 document = docx.Document()
+                style = document.styles['Normal']
+                style.font.size = Pt(9)
+                
                 document.styles['Normal'].paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
                 document.styles['Normal'].paragraph_format.space_before = Pt(0)
                 document.styles['Normal'].paragraph_format.space_after = Pt(0)
