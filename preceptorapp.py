@@ -432,17 +432,27 @@ if analysis_report_file is not None:
                 document.styles['Normal'].paragraph_format.space_after = Pt(0)
 
                 
-                # Write header info: evaluator's name, email, and number of evaluations
-                paragraph = document.add_paragraph()
-                bold_run = paragraph.add_run("Preceptor: ")
-                bold_run.bold = True
-                paragraph.add_run(row['Evaluator'])
+                table = document.add_table(rows=1, cols=2)
+                table.autofit = False  # Prevent automatic adjustment of column widths
+                
+                # Set each column to 3 inches wide
+                table.columns[0].width = Inches(3)
+                table.columns[1].width = Inches(3)
+                
+                # Access the cells of the first row
+                cell_label = table.rows[0].cells[0]
+                cell_value = table.rows[0].cells[1]
+                
+                # Add bolded "Preceptor:" in the first cell
+                p_label = cell_label.paragraphs[0]
+                run_label = p_label.add_run("Preceptor: ")
+                run_label.bold = True
+                
+                # Add the preceptor name from your data in the second cell
+                p_value = cell_value.paragraphs[0]
+                p_value.add_run(row['Evaluator'])
                 
                 document.add_paragraph("")
-                #document.add_paragraph(f"Email: {row['Evaluator Email']}")
-                #document.add_paragraph(f"Number of Evaluations: {row['num_evaluations']}")
-                #document.add_paragraph(f"Number of Student Evaluations Completed by Evaluator: {row['total_evaluations']}")
-                #document.add_paragraph(f"Percentage of Student Evaluations Completed within 14 days: {row['percentage_on_time']}")
                 
                 # Create a 4-row, 2-column table
                 details_table = document.add_table(rows=5, cols=2)
