@@ -471,6 +471,8 @@ if analysis_report_file is not None:
                 p_value = cell_value.paragraphs[0]
                 p_value.add_run(row['Evaluator'])
 
+                document.add_paragraph("")
+
                 # Create a 5-row, 2-column table
                 details_table = document.add_table(rows=5, cols=2)
                 details_table.style = 'Table Grid'  # Or use your custom border logic
