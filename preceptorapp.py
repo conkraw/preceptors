@@ -151,7 +151,10 @@ if evaluation_due_dates_file is not None:
         grouped['percentage_on_time'] = ((grouped['on_time_evaluations'] / grouped['total_evaluations']) * 100).round(1)
 
         st.dataframe(grouped)
+        grouped = grouped.reset_index()
+        # Now, if you still need to set it as the index for further operations:
         grouped = grouped.set_index('Evaluator')
+
         
 
     except Exception as e:
