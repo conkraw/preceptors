@@ -14,6 +14,7 @@ import numpy as np
 from docx.shared import Inches
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
+from docx.enum.text import WD_LINE_SPACING
 
 def set_cell_border(cell, top=None, bottom=None, left=None, right=None):
     """
@@ -422,6 +423,7 @@ if analysis_report_file is not None:
             for idx, row in df_final.iterrows():
                 # Create a new Word document for each evaluator
                 document = docx.Document()
+                document.styles['Normal'].paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
                 
                 # Write header info: evaluator's name, email, and number of evaluations
                 document.add_heading(f"Evaluator: {row['Evaluator']}", level=1)
