@@ -124,6 +124,40 @@ with col2:
     # File uploader for evaluation due dates (adjust allowed types as needed)
     evaluation_due_dates_file = st.file_uploader("Upload Evaluation Due Dates", type=["csv", "xlsx", "pdf"])
 
+if evaluation_due_dates_file is not None:
+    try:
+        # Determine the file type and load accordingly
+        if evaluation_due_dates_file.name.endswith("csv"):
+            dfe = pd.read_csv(evaluation_due_dates_file)
+        elif evaluation_due_dates_file.name.endswith("xlsx"):
+            dfe = pd.read_excel(evaluation_due_dates_file)
+        # Display the DataFrame in the app
+        dfe = dfe.loc[dfe['Location'] != "LIC - Kaiser Permanente"]
+        dfe = dfe[['Evaluator', 'Submit Date', 'End Date']]
+
+        # Convert the date columns to datetime format
+        dfe['Submit Date'] = pd.to_datetime(dfe['Submit Date'])
+        dfe['End Date'] = pd.to_datetime(dfe['End Date'])
+        
+        # Calculate the difference in days between Submit Date and End Date
+        dfe['diff_days'] = (dfe['Submit Date'] - dfe['End Date']).dt.days
+        
+        # Create a boolean flag for evaluations that are less than or equal to 14 days
+        dfe['on_time'] = dfe['diff_days'] <= 14
+        
+        # Group by Evaluator:
+        #   - total evaluations per evaluator
+        #   - count of on_time evaluations (True values sum up as 1's)
+        grouped = dfe.groupby('Evaluator').agg(total_evaluations=('Evaluator', 'size'),on_time_evaluations=('on_time', 'sum'))
+        
+        # Calculate the percentage of on-time evaluations per evaluator
+        grouped['percentage_on_time'] = ((grouped['on_time_evaluations'] / grouped['total_evaluations']) * 100).round(1)
+
+        st.dataframe(grouped)
+
+    except Exception as e:
+        st.error(f"Error loading file: {e}")
+
 if analysis_report_file is not None:
     try:
         # Determine the file type and load accordingly
@@ -386,39 +420,5 @@ if analysis_report_file is not None:
     except Exception as e:
         st.error(f"Error loading file: {e}")
         
-if evaluation_due_dates_file is not None:
-    try:
-        # Determine the file type and load accordingly
-        if evaluation_due_dates_file.name.endswith("csv"):
-            dfe = pd.read_csv(evaluation_due_dates_file)
-        elif evaluation_due_dates_file.name.endswith("xlsx"):
-            dfe = pd.read_excel(evaluation_due_dates_file)
-        # Display the DataFrame in the app
-        dfe = dfe.loc[dfe['Location'] != "LIC - Kaiser Permanente"]
-        dfe = dfe[['Evaluator', 'Submit Date', 'End Date']]
-
-        # Convert the date columns to datetime format
-        dfe['Submit Date'] = pd.to_datetime(dfe['Submit Date'])
-        dfe['End Date'] = pd.to_datetime(dfe['End Date'])
-        
-        # Calculate the difference in days between Submit Date and End Date
-        dfe['diff_days'] = (dfe['Submit Date'] - dfe['End Date']).dt.days
-        
-        # Create a boolean flag for evaluations that are less than or equal to 14 days
-        dfe['on_time'] = dfe['diff_days'] <= 14
-        
-        # Group by Evaluator:
-        #   - total evaluations per evaluator
-        #   - count of on_time evaluations (True values sum up as 1's)
-        grouped = dfe.groupby('Evaluator').agg(total_evaluations=('Evaluator', 'size'),on_time_evaluations=('on_time', 'sum'))
-        
-        # Calculate the percentage of on-time evaluations per evaluator
-        grouped['percentage_on_time'] = (grouped['on_time_evaluations'] / grouped['total_evaluations']) * 100
-
-        st.dataframe(grouped)
-
-    except Exception as e:
-        st.error(f"Error loading file: {e}")
-
 
 
