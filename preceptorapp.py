@@ -434,13 +434,12 @@ if analysis_report_file is not None:
                 
                 # Write header info: evaluator's name, email, and number of evaluations
                 document.add_heading(f"Preceptor: {row['Evaluator']}", level=1)
+                document.add_paragraph("")
                 #document.add_paragraph(f"Email: {row['Evaluator Email']}")
                 #document.add_paragraph(f"Number of Evaluations: {row['num_evaluations']}")
                 #document.add_paragraph(f"Number of Student Evaluations Completed by Evaluator: {row['total_evaluations']}")
                 #document.add_paragraph(f"Percentage of Student Evaluations Completed within 14 days: {row['percentage_on_time']}")
-
-                document.add_heading(f"Evaluator: {row['Evaluator']}", level=1)
-
+                
                 # Create a 4-row, 2-column table
                 details_table = document.add_table(rows=4, cols=2)
                 details_table.style = 'Table Grid'  # Or use your custom border logic
@@ -450,8 +449,19 @@ if analysis_report_file is not None:
                 col_width_right = Inches(3.0)
                 
                 # Row 0: Email
-                details_table.cell(0, 0).text = "Email:"
-                details_table.cell(0, 1).text = str(row['Evaluator Email'])
+                #details_table.cell(0, 0).text = "Email:"
+                #details_table.cell(0, 1).text = str(row['Evaluator Email'])
+
+                header_row = table.rows[0]
+                header_cells = header_row.cells
+                header_cells[0].text = "Evaluation Metric"
+                header_cells[1].text = "Average Result"
+                
+                # Bold the header text
+                for cell in header_cells:
+                    for paragraph in cell.paragraphs:
+                        for run in paragraph.runs:
+                            run.font.bold = True
                 
                 # Row 1: Number of Evaluations
                 details_table.cell(1, 0).text = "Number of Evaluations:"
@@ -463,7 +473,7 @@ if analysis_report_file is not None:
                 
                 # Row 3: Percentage of Student Evaluations Completed within 14 days
                 details_table.cell(3, 0).text = "Percentage of Student Evaluations Completed within 14 days:"
-                details_table.cell(3, 1).text = str(row['percentage_on_time'])
+                details_table.cell(3, 1).text = f"{row['percentage_on_time']:.1f}%"
                 
                 # Optionally set column widths
                 for row_idx in range(4):
