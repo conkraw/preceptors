@@ -441,7 +441,7 @@ if analysis_report_file is not None:
                 #document.add_paragraph(f"Percentage of Student Evaluations Completed within 14 days: {row['percentage_on_time']}")
                 
                 # Create a 4-row, 2-column table
-                details_table = document.add_table(rows=4, cols=2)
+                details_table = document.add_table(rows=5, cols=2)
                 details_table.style = 'Table Grid'  # Or use your custom border logic
                 
                 # Define column widths if desired
