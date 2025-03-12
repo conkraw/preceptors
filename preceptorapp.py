@@ -647,9 +647,13 @@ if analysis_report_file is not None:
                 #document.add_heading("Opportunities for Improvement Summary", level=2)
                 #document.add_paragraph(str(row["improvement_summary"]))
 
+                document.add_paragraph("")
                 create_comment_table(document, "Strengths Comments", row["strengths_preceptor"])
+                document.add_paragraph("")
                 create_comment_table(document, "Opportunities for Improvement Comments", row["improvement_preceptor"])
+                document.add_paragraph("")
                 create_comment_table(document, "Strengths Summary", row["strengths_summary"])
+                document.add_paragraph("")
                 create_comment_table(document, "Opportunities for Improvement Summary", row["improvement_summary"])
 
                 # Save the document to a temporary in-memory buffer
