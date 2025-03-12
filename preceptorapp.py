@@ -526,7 +526,6 @@ if analysis_report_file is not None:
                 # Create a new Word document for each evaluator
                 document = docx.Document()
                 paragraph = document.add_paragraph("Preceptor Performance Summary")
-                paragraph.style = "Title"
                 
                 style = document.styles['Normal']
                 style.font.size = Pt(9)
