@@ -20,7 +20,42 @@ from docx import Document
 from docx.shared import Inches
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
+def set_cell_border(cell, **kwargs):
+    """
+    Set cell borders. Accepts arguments:
+    top, start, bottom, end, left, right in the form of:
+    {"sz": "12", "val": "single", "color": "000000"}
+    """
+    tc = cell._tc
+    tcPr = tc.get_or_add_tcPr()
+    for edge in ('top', 'start', 'bottom', 'end', 'left', 'right'):
+        if edge in kwargs:
+            edge_data = kwargs.get(edge)
+            if edge_data:
+                tag = 'w:{}'.format(edge)
+                element = tcPr.find(qn(tag))
+                if element is None:
+                    element = OxmlElement(tag)
+                    tcPr.append(element)
+                for key, value in edge_data.items():
+                    element.set(qn('w:{}'.format(key)), value)
 
+# A small helper to create a two-row table (header row + content row)
+def create_comment_table(document, header_text, content_text):
+    table = document.add_table(rows=2, cols=1)
+    table.style = 'Table Grid'  # gives a simple bordered look
+
+    # 1) Header row
+    hdr_cell = table.cell(0, 0)
+    hdr_cell.text = header_text
+    # Make the header row text bold
+    for paragraph in hdr_cell.paragraphs:
+        for run in paragraph.runs:
+            run.bold = True
+
+    # 2) Content row
+    table.cell(1, 0).text = str(content_text)
+    
 def set_cell_width(cell, width_in_inches):
     # 1 inch = 1440 dxa (twips)
     width_dxa = int(width_in_inches * 1440)
@@ -601,17 +636,22 @@ if analysis_report_file is not None:
                     )
                 
                 # Write all strengths and opportunities for improvement comments
-                document.add_heading("Strengths Comments", level=2)
-                document.add_paragraph(str(row["strengths_preceptor"]))
-                document.add_heading("Opportunities for Improvement Comments", level=2)
-                document.add_paragraph(str(row["improvement_preceptor"]))
+                #document.add_heading("Strengths Comments", level=2)
+                #document.add_paragraph(str(row["strengths_preceptor"]))
+                #document.add_heading("Opportunities for Improvement Comments", level=2)
+                #document.add_paragraph(str(row["improvement_preceptor"]))
                 
                 # Write the summary fields
-                document.add_heading("Strengths Summary", level=2)
-                document.add_paragraph(str(row["strengths_summary"]))
-                document.add_heading("Opportunities for Improvement Summary", level=2)
-                document.add_paragraph(str(row["improvement_summary"]))
-                
+                #document.add_heading("Strengths Summary", level=2)
+                #document.add_paragraph(str(row["strengths_summary"]))
+                #document.add_heading("Opportunities for Improvement Summary", level=2)
+                #document.add_paragraph(str(row["improvement_summary"]))
+
+                create_comment_table(document, "Strengths Comments", row["strengths_preceptor"])
+                create_comment_table(document, "Opportunities for Improvement Comments", row["improvement_preceptor"])
+                create_comment_table(document, "Strengths Summary", row["strengths_summary"])
+                create_comment_table(document, "Opportunities for Improvement Summary", row["improvement_summary"])
+
                 # Save the document to a temporary in-memory buffer
                 doc_buffer = io.BytesIO()
                 document.save(doc_buffer)
