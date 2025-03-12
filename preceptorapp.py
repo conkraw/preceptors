@@ -433,12 +433,43 @@ if analysis_report_file is not None:
 
                 
                 # Write header info: evaluator's name, email, and number of evaluations
+                document.add_heading(f"Preceptor: {row['Evaluator']}", level=1)
+                #document.add_paragraph(f"Email: {row['Evaluator Email']}")
+                #document.add_paragraph(f"Number of Evaluations: {row['num_evaluations']}")
+                #document.add_paragraph(f"Number of Student Evaluations Completed by Evaluator: {row['total_evaluations']}")
+                #document.add_paragraph(f"Percentage of Student Evaluations Completed within 14 days: {row['percentage_on_time']}")
+
                 document.add_heading(f"Evaluator: {row['Evaluator']}", level=1)
-                document.add_paragraph(f"Email: {row['Evaluator Email']}")
-                document.add_paragraph(f"Number of Evaluations: {row['num_evaluations']}")
-                document.add_paragraph(f"Number of Student Evaluations Completed by Evaluator: {row['total_evaluations']}")
-                document.add_paragraph(f"Percentage of Student Evaluations Completed within 14 days: {row['percentage_on_time']}")
+
+                # Create a 4-row, 2-column table
+                details_table = document.add_table(rows=4, cols=2)
+                details_table.style = 'Table Grid'  # Or use your custom border logic
                 
+                # Define column widths if desired
+                col_width_left = Inches(3.0)
+                col_width_right = Inches(3.0)
+                
+                # Row 0: Email
+                details_table.cell(0, 0).text = "Email:"
+                details_table.cell(0, 1).text = str(row['Evaluator Email'])
+                
+                # Row 1: Number of Evaluations
+                details_table.cell(1, 0).text = "Number of Evaluations:"
+                details_table.cell(1, 1).text = str(row['num_evaluations'])
+                
+                # Row 2: Number of Student Evaluations Completed by Evaluator
+                details_table.cell(2, 0).text = "Number of Student Evaluations Completed by Evaluator:"
+                details_table.cell(2, 1).text = str(row['total_evaluations'])
+                
+                # Row 3: Percentage of Student Evaluations Completed within 14 days
+                details_table.cell(3, 0).text = "Percentage of Student Evaluations Completed within 14 days:"
+                details_table.cell(3, 1).text = str(row['percentage_on_time'])
+                
+                # Optionally set column widths
+                for row_idx in range(4):
+                    details_table.cell(row_idx, 0).width = col_width_left
+                    details_table.cell(row_idx, 1).width = col_width_right
+    
                 # Write evaluation question scores.
                 # Assume that the remaining numeric columns (not part of the known text fields) are the evaluation questions.
                 known_cols = {
@@ -446,7 +477,7 @@ if analysis_report_file is not None:
                     "improvement_preceptor", "strengths_summary", "improvement_summary",
                     "num_evaluations", "Form Record"
                 }
-                document.add_heading("Evaluation Average Scores", level=2)
+                #document.add_heading("Evaluation Average Scores", level=2)
                 
                 # Define a standard border style
                 border_style = {"sz": "12", "val": "single", "color": "000000"}
@@ -456,14 +487,14 @@ if analysis_report_file is not None:
                 # Do NOT set table.style = 'Table Grid' because we want to manually control borders
                 
                 # Define column widths
-                evaluator_col_width = Inches(6.14)
-                score_col_width = Inches(0.75)
+                evaluator_col_width = Inches(6.45)
+                score_col_width = Inches(0.63)
                 
                 # 1) Configure the header row
                 header_row = table.rows[0]
                 header_cells = header_row.cells
                 header_cells[0].text = "Evaluation Question"
-                header_cells[1].text = "Score"
+                header_cells[1].text = "Average Score"
                 
                 # Bold the header text
                 for cell in header_cells:
