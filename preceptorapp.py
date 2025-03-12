@@ -632,7 +632,7 @@ if analysis_report_file is not None:
                 known_cols = {
                     "Evaluator", "Evaluator Email", "Rotation Period", "strengths_preceptor",
                     "improvement_preceptor", "strengths_summary", "improvement_summary",
-                    "num_evaluations", "Form Record"
+                    "num_evaluations", "Form Record", "total_evaluations", "percentage_on_time"
                 }
                 document.add_paragraph("")
                 
