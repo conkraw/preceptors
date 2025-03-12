@@ -393,7 +393,10 @@ if evaluation_due_dates_file is not None:
         elif evaluation_due_dates_file.name.endswith("xlsx"):
             dfe = pd.read_excel(evaluation_due_dates_file)
         # Display the DataFrame in the app
+        dfe = dfe[['Location'] != "LIC - Kaiser Permanente"]
+        
         st.dataframe(dfe)
+        
     except Exception as e:
         st.error(f"Error loading file: {e}")
 
