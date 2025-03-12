@@ -433,11 +433,12 @@ if analysis_report_file is not None:
 
                 
                 table = document.add_table(rows=1, cols=2)
+                table.style = 'Table Grid'
                 table.autofit = False  # Prevent automatic adjustment of column widths
                 
                 # Set each column to 3 inches wide
                 table.columns[0].width = Inches(3)
-                table.columns[1].width = Inches(3)
+                table.columns[1].width = Inches(3.14)
                 
                 # Access the cells of the first row
                 cell_label = table.rows[0].cells[0]
