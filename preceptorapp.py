@@ -394,9 +394,22 @@ if evaluation_due_dates_file is not None:
             dfe = pd.read_excel(evaluation_due_dates_file)
         # Display the DataFrame in the app
         dfe = dfe.loc[dfe['Location'] != "LIC - Kaiser Permanente"]
-        dfe = dfe[['End Date', 'Evaluator', 'Submit Date']]
+        dfe = dfe[['Evaluator', 'Submit Date', 'End Date']]
+
+        dfe['Submit Date'] = pd.to_datetime(dfe['Submit Date'])
+        dfe['End Date'] = pd.to_datetime(dfe['End Date'])
         
-        st.dataframe(dfe)
+        # Option 1: Using pd.Timedelta for a direct comparison
+        dfe['flag'] = np.where((dfe['Submit Date'] - dfe['End Date']) > pd.Timedelta(days=14), 'yes', 'no')
+        
+        # Option 2: Calculating the difference in days explicitly
+        # dfe['diff_days'] = (dfe['Submit Date'] - dfe['End Date']).dt.days
+        # dfe['flag'] = np.where(dfe['diff_days'] > 14, 'yes', 'no')
+        
+        # Group by Evaluator and count the "yes" flags
+        yes_counts = dfe[dfe['flag'] == 'yes'].groupby('Evaluator').size()
+        
+        st.dataframe(yes_counts)
         
     except Exception as e:
         st.error(f"Error loading file: {e}")
