@@ -16,6 +16,20 @@ from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.enum.text import WD_LINE_SPACING
 from docx.shared import Pt
+from docx import Document
+from docx.shared import Inches
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
+
+def set_cell_width(cell, width_in_inches):
+    # 1 inch = 1440 dxa (twips)
+    width_dxa = int(width_in_inches * 1440)
+    tc = cell._tc
+    tcPr = tc.get_or_add_tcPr()
+    tcW = OxmlElement('w:tcW')
+    tcW.set(qn('w:w'), str(width_dxa))
+    tcW.set(qn('w:type'), 'dxa')
+    tcPr.append(tcW)
 
 def set_cell_border(cell, top=None, bottom=None, left=None, right=None):
     """
@@ -431,16 +445,20 @@ if analysis_report_file is not None:
                 document.styles['Normal'].paragraph_format.space_before = Pt(0)
                 document.styles['Normal'].paragraph_format.space_after = Pt(0)
 
-                
+                # Create a table with 1 row and 2 columns and a grid style
                 table = document.add_table(rows=1, cols=2)
                 table.style = 'Table Grid'
-                #table.autofit = False  # Prevent automatic adjustment of column widths
                 
-                # Set each column to 3 inches wide
-                table.columns[0].width = Inches(3)
-                table.columns[1].width = Inches(3.14)
+                # Optionally disable autofit if available (not always effective)
+                # table.autofit = False
                 
-                # Access the cells of the first row
+                # Set each column's cell widths individually:
+                for cell in table.columns[0].cells:
+                    set_cell_width(cell, 3)  # 3 inches for first column
+                for cell in table.columns[1].cells:
+                    set_cell_width(cell, 3.14)  # 3.14 inches for second column
+                
+                # Populate the cells with your content:
                 cell_label = table.rows[0].cells[0]
                 cell_value = table.rows[0].cells[1]
                 
@@ -449,23 +467,9 @@ if analysis_report_file is not None:
                 run_label = p_label.add_run("Preceptor: ")
                 run_label.bold = True
                 
-                # Add the preceptor name from your data in the second cell
+                # Add the preceptor name in the second cell (assuming row['Evaluator'] holds the name)
                 p_value = cell_value.paragraphs[0]
                 p_value.add_run(row['Evaluator'])
-                
-                document.add_paragraph("")
-                
-                # Create a 4-row, 2-column table
-                details_table = document.add_table(rows=5, cols=2)
-                details_table.style = 'Table Grid'  # Or use your custom border logic
-                
-                # Define column widths if desired
-                col_width_left = Inches(3.0)
-                col_width_right = Inches(3.14)
-                
-                # Row 0: Email
-                #details_table.cell(0, 0).text = "Email:"
-                #details_table.cell(0, 1).text = str(row['Evaluator Email'])
 
                 header_row = details_table.rows[0]
                 header_cells = header_row.cells
