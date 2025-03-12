@@ -666,7 +666,7 @@ if analysis_report_file is not None:
                 
 
                 document.add_paragraph("")
-                create_comment_table(document, "Strengths Comments", row["strengths_preceptor"], 6.14)
+                create_comment_table(document, "Strengths Comments", row["strengths_preceptor"], 20)
                 document.add_paragraph("")
                 create_comment_table(document, "Opportunities for Improvement Comments", row["improvement_preceptor"],6.14)
                 document.add_paragraph("")
