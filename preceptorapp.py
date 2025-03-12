@@ -212,11 +212,11 @@ if analysis_report_file is not None:
             dfa = pd.read_excel(analysis_report_file)
         # Display the DataFrame in the app
 
-        #dfa = dfa[~dfa["Form Record"].apply(lambda record: check_and_add_record(record))]
-
+        ###########################################################################################
         # First, filter the DataFrame based on Firebase:
-        dfa = dfa[~dfa["Form Record"].apply(lambda record: check_and_add_record(record))]
-
+        #dfa = dfa[~dfa["Form Record"].apply(lambda record: check_and_add_record(record))]
+        ###########################################################################################
+        
         selected_indices = [4, 5, 16, 19, 23, 27, 30, 34, 37, 41, 44, 48, 51, 55, 58, 62,65, 69, 72, 76, 79, 83, 86, 90, 93, 97, 100, 104, 107, 111, 114, 118, 121, 125, 128, 132, 135, 139, 143, 146, 147, 153, 154]
         dfa = dfa.iloc[:, selected_indices]
         #st.dataframe(dfa)
@@ -344,13 +344,14 @@ if analysis_report_file is not None:
         
         # Filter for eligible preceptors: every evaluation score must be 4.5 or above.
         eligible_df = df_final[df_final[score_cols].ge(4.5).all(axis=1)].copy()
-        
+
+        ###########################################################################################
         # Retrieve already spotlighted evaluators from Firebase.
-        spotlight_docs = db.collection("spotlight").stream()
-        spotlight_evaluators = {doc.to_dict().get("Evaluator") for doc in spotlight_docs}
-        
+        #spotlight_docs = db.collection("spotlight").stream()
+        #spotlight_evaluators = {doc.to_dict().get("Evaluator") for doc in spotlight_docs}        
         # Exclude evaluators already in the spotlight.
-        eligible_df = eligible_df[~eligible_df["Evaluator"].isin(spotlight_evaluators)]
+        #eligible_df = eligible_df[~eligible_df["Evaluator"].isin(spotlight_evaluators)]
+        ###########################################################################################
         
         if eligible_df.empty:
             st.info("No eligible preceptors found for the spotlight this month.")
@@ -380,9 +381,11 @@ if analysis_report_file is not None:
                 "improvement_preceptor": selected_candidate["improvement_preceptor"]
             }
 
-            
-            db.collection("spotlight").document(selected_candidate["Evaluator"]).set(record)
-            st.success(f"Spotlight selected: {selected_candidate['Evaluator']}")
+
+            ###########################################################################################
+            #db.collection("spotlight").document(selected_candidate["Evaluator"]).set(record)
+            #st.success(f"Spotlight selected: {selected_candidate['Evaluator']}")
+            ###########################################################################################
             
             # --- STEP 4: Create a Word Document for the Spotlight Candidate ---
             document = docx.Document()
