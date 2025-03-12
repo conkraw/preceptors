@@ -47,16 +47,24 @@ def create_comment_table(document, header_text, content_text):
     table = document.add_table(rows=2, cols=1)
     table.style = 'Table Grid'  # gives a simple bordered look
 
+    # Disable autofitting so the column width setting is respected
+    table.autofit = False
+
+    # Set the single column to 6.14 inches wide
+    table.columns[0].width = Inches(6.14)
+
     # 1) Header row
     hdr_cell = table.cell(0, 0)
     hdr_cell.text = header_text
-    # Make the header row text bold
     for paragraph in hdr_cell.paragraphs:
         for run in paragraph.runs:
             run.bold = True
 
     # 2) Content row
     table.cell(1, 0).text = str(content_text)
+
+    return table
+
     
 def set_cell_width(cell, width_in_inches):
     # 1 inch = 1440 dxa (twips)
