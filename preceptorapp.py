@@ -113,17 +113,16 @@ st.title("Faculty Analysis Report & Evaluation Due Dates Upload")
 col1, col2 = st.columns(2)
 
 with col1:
-    st.subheader("Setup Analysis Report")
-    # Embed the website so users can view it directly
-    st.markdown("[Faculty Evaluations](https://oasis.hersheymed.net/admin/course/e_manage/faculty/setup_analysis_report.html)")
-
-    analysis_report_file = st.file_uploader("Upload Analysis Report", type=["pdf", "docx", "csv"])
-
-with col2:
     st.subheader("Evaluation Due Dates")
     st.markdown("[Student Performance Report](https://oasis.hersheymed.net/admin/course/e_manage/student_performance/setup_analysis_report.html)")
     # File uploader for evaluation due dates (adjust allowed types as needed)
     evaluation_due_dates_file = st.file_uploader("Upload Evaluation Due Dates", type=["csv", "xlsx", "pdf"])
+    
+with col2:
+    st.subheader("Setup Analysis Report")
+    # Embed the website so users can view it directly
+    st.markdown("[Faculty Evaluations](https://oasis.hersheymed.net/admin/course/e_manage/faculty/setup_analysis_report.html)")
+    analysis_report_file = st.file_uploader("Upload Analysis Report", type=["pdf", "docx", "csv"])
 
 if evaluation_due_dates_file is not None:
     try:
