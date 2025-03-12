@@ -452,7 +452,7 @@ if analysis_report_file is not None:
                 #details_table.cell(0, 0).text = "Email:"
                 #details_table.cell(0, 1).text = str(row['Evaluator Email'])
 
-                header_row = table.rows[0]
+                header_row = details_table.rows[0]
                 header_cells = header_row.cells
                 header_cells[0].text = "Evaluation Metric"
                 header_cells[1].text = "Average Result"
