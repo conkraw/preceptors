@@ -378,7 +378,7 @@ if analysis_report_file is not None:
                 document.add_paragraph(f"Email: {row['Evaluator Email']}")
                 document.add_paragraph(f"Number of Evaluations: {row['num_evaluations']}")
                 document.add_paragraph(f"Number of Student Evaluations Completed by Evaluator: {row['total_evaluations']}")
-                document.add_paragraph(f"Number of Student Evaluations Completed within 14 days: {row['percentage_on_time']}")
+                document.add_paragraph(f"Percentage of Student Evaluations Completed within 14 days: {row['percentage_on_time']}")
                 
                 # Write evaluation question scores.
                 # Assume that the remaining numeric columns (not part of the known text fields) are the evaluation questions.
