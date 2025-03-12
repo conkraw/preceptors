@@ -463,17 +463,23 @@ if analysis_report_file is not None:
                         for run in paragraph.runs:
                             run.font.bold = True
                 
-                # Row 1: Number of Evaluations
-                details_table.cell(1, 0).text = "Number of Evaluations:"
-                details_table.cell(1, 1).text = str(row['num_evaluations'])
+
+                # Row 1: Rotation Periods
+                details_table.cell(1, 0).text = "Rotation Period:"
+                details_table.cell(1, 1).text = str(row['Rotation Period'])
+
+                # Row 2: Number of Evaluations
+                details_table.cell(2, 0).text = "Number of Evaluations:"
+                details_table.cell(2, 1).text = str(row['num_evaluations'])
                 
-                # Row 2: Number of Student Evaluations Completed by Evaluator
-                details_table.cell(2, 0).text = "Number of Student Evaluations Completed by Evaluator:"
-                details_table.cell(2, 1).text = str(row['total_evaluations'])
+                # Row 3: Number of Student Evaluations Completed by Evaluator
+                details_table.cell(3, 0).text = "Number of Student Evaluations Completed by Evaluator:"
+                details_table.cell(3, 1).text = str(row['total_evaluations'])
                 
-                # Row 3: Percentage of Student Evaluations Completed within 14 days
-                details_table.cell(3, 0).text = "Percentage of Student Evaluations Completed within 14 days:"
-                details_table.cell(3, 1).text = f"{row['percentage_on_time']:.1f}%"
+                # Row 4: Percentage of Student Evaluations Completed within 14 days
+                details_table.cell(4, 0).text = "Percentage of Student Evaluations Completed within 14 days:"
+                details_table.cell(4, 1).text = f"{row['percentage_on_time']:.1f}%"
+
                 
                 # Optionally set column widths
                 for row_idx in range(4):
@@ -488,6 +494,8 @@ if analysis_report_file is not None:
                     "num_evaluations", "Form Record"
                 }
                 #document.add_heading("Evaluation Average Scores", level=2)
+                
+                document.add_paragraph("")
                 
                 # Define a standard border style
                 border_style = {"sz": "12", "val": "single", "color": "000000"}
@@ -560,8 +568,8 @@ if analysis_report_file is not None:
                         bottom=border_style if is_last_row else None
                     )
                 # Write rotation period(s)
-                document.add_heading("Rotation Period(s)", level=2)
-                document.add_paragraph(str(row["Rotation Period"]))
+                #document.add_heading("Rotation Period(s)", level=2)
+                
                 
                 # Write all strengths and opportunities for improvement comments
                 document.add_heading("Strengths Comments", level=2)
