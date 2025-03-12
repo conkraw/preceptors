@@ -144,6 +144,8 @@ if evaluation_due_dates_file is not None:
         
         # Create a boolean flag for evaluations that are less than or equal to 14 days
         dfe['on_time'] = dfe['diff_days'] <= 14
+
+        st.dataframe(dfe)
         
         # Group by Evaluator:
         #   - total evaluations per evaluator
@@ -154,7 +156,7 @@ if evaluation_due_dates_file is not None:
         grouped['percentage_on_time'] = ((grouped['on_time_evaluations'] / grouped['total_evaluations']) * 100).round(1)
 
         grouped = grouped.set_index('Evaluator')
-        st.dataframe(grouped)
+        
 
     except Exception as e:
         st.error(f"Error loading file: {e}")
