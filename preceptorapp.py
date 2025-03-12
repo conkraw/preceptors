@@ -525,7 +525,19 @@ if analysis_report_file is not None:
             for idx, row in df_final.iterrows():
                 # Create a new Word document for each evaluator
                 document = docx.Document()
-                paragraph = document.add_paragraph("Preceptor Performance Summary")
+                paragraph = document.add_paragraph("PRECEPTOR PERFORMANCE SUMMARY")
+                
+                # Format the run
+                run = paragraph.runs[0]
+                run.bold = True
+                run.underline = True
+                
+                # Center the paragraph
+                paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+
+                document.add_paragraph("")
+                
                 
                 style = document.styles['Normal']
                 style.font.size = Pt(9)
@@ -545,7 +557,7 @@ if analysis_report_file is not None:
                 for cell in table.columns[0].cells:
                     set_cell_width(cell, 3)  # 3 inches for first column
                 for cell in table.columns[1].cells:
-                    set_cell_width(cell, 2.69)  # 3.14 inches for second column
+                    set_cell_width(cell, 3.14)  # 3.14 inches for second column
                 
                 # Populate the cells with your content:
                 cell_label = table.rows[0].cells[0]
@@ -570,8 +582,8 @@ if analysis_report_file is not None:
                 details_table.style = 'Table Grid'  # Or use your custom border logic
                 
                 # Define column widths if desired
-                col_width_left = Inches(3.0)
-                col_width_right = Inches(3.14)
+                col_width_left = Inches(3.45)
+                col_width_right = Inches(2.69)
                 
                 header_row = details_table.rows[0]
                 header_cells = header_row.cells
