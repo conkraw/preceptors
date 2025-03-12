@@ -48,7 +48,7 @@ def create_comment_table(document, header_text, content_text):
     table.style = 'Table Grid'  # gives a simple bordered look
 
     # Disable autofitting so the column width setting is respected
-    table.autofit = False
+    #table.autofit = False
 
     # Set the single column to 6.14 inches wide
     table.columns[0].width = Inches(6.14)
