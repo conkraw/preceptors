@@ -397,20 +397,20 @@ if analysis_report_file is not None:
                     "improvement_preceptor", "strengths_summary", "improvement_summary",
                     "num_evaluations", "Form Record"
                 }
-                document.add_heading("Evaluation Scores", level=2)
+                document.add_heading("Evaluation Average Scores", level=2)
                 
                 # Create a table with a header row and apply a style that shows borders
                 table = document.add_table(rows=1, cols=2)
                 table.style = 'Table Grid'  # This style adds gridlines between rows and cells
                 
                 # Define the desired widths
-                evaluator_col_width = Inches(4.76)
-                score_col_width = Inches(1.24)
+                evaluator_col_width = Inches(6.14)
+                score_col_width = Inches(0.75)
                 
                 # Configure the header row
                 header_cells = table.rows[0].cells
                 header_cells[0].text = "Evaluation Question"
-                header_cells[1].text = "Average Score"
+                header_cells[1].text = "Score"
                 
                 # Bold header text by accessing the paragraph's run
                 for cell in header_cells:
