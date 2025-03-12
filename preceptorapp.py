@@ -471,6 +471,9 @@ if analysis_report_file is not None:
                 p_value = cell_value.paragraphs[0]
                 p_value.add_run(row['Evaluator'])
 
+                document.add_paragraph("")
+                details_table = document.add_table(rows=5, cols=2)
+                
                 header_row = details_table.rows[0]
                 header_cells = header_row.cells
                 header_cells[0].text = "Evaluation Metric"
