@@ -23,14 +23,24 @@ from docx.oxml.ns import qn
 
 def shade_cell(cell, shade_color="D3D3D3"):
     """
-    Applies background shading to a table cell. 
-    shade_color should be a hex color code (without the #).
+    Applies background shading to a table cell.
+    shade_color should be a hex color code (without the '#').
     For example, 'D3D3D3' is a light gray.
     """
+    # Get the cell properties
     tcPr = cell._tc.get_or_add_tcPr()
-    shd = OxmlElement('w:shd')
+    # Look for an existing w:shd element
+    shd = tcPr.find(qn('w:shd'))
+    if shd is None:
+        # If not found, create one
+        shd = OxmlElement('w:shd')
+        tcPr.append(shd)
+    # Set the shading style
+    # 'val' can be 'clear', 'solid', etc.
+    # 'color' is usually 'auto' if you're only changing fill.
+    shd.set(qn('w:val'), 'clear')
+    shd.set(qn('w:color'), 'auto')
     shd.set(qn('w:fill'), shade_color)
-    tcPr.append(shd)
     
 def set_cell_border(cell, **kwargs):
     """
