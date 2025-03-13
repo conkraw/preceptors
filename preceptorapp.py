@@ -736,8 +736,8 @@ if analysis_report_file is not None:
 
                 document.add_paragraph("")
 
-                # Create a 5-row, 2-column table
-                details_table = document.add_table(rows=5, cols=2)
+                # Create a 6-row, 2-column table
+                details_table = document.add_table(rows=7, cols=2)
                 details_table.style = 'Table Grid'  # Or use your custom border logic
                 
                 # Define column widths if desired
@@ -775,6 +775,15 @@ if analysis_report_file is not None:
                 # Row 4: Percentage of Student Evaluations Completed within 14 days
                 details_table.cell(4, 0).text = "On-Time Completion Rate (%):"
                 details_table.cell(4, 1).text = f"{row['percentage_on_time']:.1f}%"
+
+                # Row 5: Percentage of Student Evaluations Completed within 14 days
+                details_table.cell(5, 0).text = "Number of Students Assigned to Preceptor:"
+                details_table.cell(5, 1).text = f"{row['student_assignments']:.1f}%"
+
+                # Row 6: Percentage of Student Evaluations Completed within 14 days
+                details_table.cell(6, 0).text = "Number of Times Preceptor Matched to Student:"
+                details_table.cell(6, 1).text = f"{row['student_assignments']:.1f}%"
+
 
                 # Optionally set column widths
                 for row_idx in range(4):
