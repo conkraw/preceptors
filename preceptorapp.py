@@ -26,11 +26,12 @@ st.set_page_config(layout="wide")
 
 # Define a function to group every two elements into a single name
 def group_names(name_str):
-    parts = [part.strip() for part in name_str.split(',')]
-    grouped_names = []
-    for i in range(0, len(parts) - 1, 2):
-        grouped_names.append(f"{parts[i]}, {parts[i + 1]}")
-    return grouped_names
+    if isinstance(name_str, str):
+        parts = [part.strip() for part in name_str.split(',')]
+        return [f"{parts[i]}, {parts[i+1]}" for i in range(0, len(parts)-1, 2)]
+    else:
+        return []
+
 
 def shade_cell(cell, shade_color="D3D3D3"):
     """
@@ -306,24 +307,27 @@ if redcapmetrics is not None:
 
         dff = dff.dropna(subset=['oasis_cas'])
         
-        week_cols = ['week1', 'week2', 'week3', 'week4']
-        df_weeks = dff.melt(id_vars=['record_id'], value_vars=week_cols, var_name='week', value_name='preceptor')
-        df_weeks_cleaned = df_weeks.dropna(subset=['preceptor'])
-        # Apply name grouping function
-        df_weeks = df_exploded = df_exploded_cleaned = df_final = None
-        df_exploded = None
-        df_weeks['corrected_preceptors'] = df_weeks['value'].apply(group_names)
-        # Explode into individual rows (one per preceptor per student per week)
-        df_exploded = df_weeks.explode('corrected_preceptors')
-        # Trim whitespace
+        # Combine 'week' columns into one using melt
+        df_melted = dff.melt(id_vars=['record_id'], value_vars=['week1', 'week2', 'week3', 'week4'],
+                            var_name='week', value_name='week_preceptor')
+        
+        # Drop NaNs resulting from melting
+        df_melted = df_melted.dropna(subset=['week_preceptor'])
+        
+        # Apply group_names function to melted data safely
+        df_melted['corrected_preceptors'] = df_melted['week_preceptor'].apply(group_names)
+        
+        # Explode to individual rows per preceptor
+        df_exploded = df_melted.explode('corrected_preceptors')
+        
+        # Clean whitespace
         df_exploded['corrected_preceptors'] = df_exploded['corrected_preceptors'].str.strip()
-        # Now correctly count occurrences (preceptor-student-week combos)
-        # Each match of preceptor to record_id per week is counted
-        match_counts = df_exploded.groupby('corrected_preceptors').size().reset_index(name='match_count').sort_values('match_count', ascending=False)
-        dff = match_counts 
+        
+        # Count each occurrence (preceptor matched per student per week separately)
+        match_counts = df_exploded.groupby('corrected_preceptors').size().reset_index(name='match_count').sort_values(by='match_count', ascending=False)
         
         st.dataframe(dfe)
-        st.dataframe(dff)
+        st.dataframe(match_counts)
     except Exception as e:
         st.error(f"Error loading file: {e}")
 
