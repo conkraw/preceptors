@@ -399,9 +399,9 @@ if redcapmetrics is not None:
         st.write("Filtered dataframe shape:", df_filtered.shape)
         
         # 6. Display the filtered dataframe
-        st.dataframe(df_filtered[['record_id', 'doccomment_v1', 'doccomment_v2', 'combined_comments']])
+        #st.dataframe(df_filtered[['record_id', 'doccomment_v1', 'doccomment_v2', 'combined_comments']])
         
-        st.dataframe(df_filtered)
+        #st.dataframe(df_filtered)
         #df['documentation_summary'] = df['combined_comments'].apply(summarize_feedback)
         
         #df['corrected_preceptors'] = df['oasis_cas'].apply(group_names)
@@ -410,12 +410,12 @@ if redcapmetrics is not None:
 
         #dfj = final_df
 
-        st.dataframe(dfe)
-        st.dataframe(dff)
-        st.dataframe(dfg)
-        st.dataframe(dfh)
-        st.dataframe(dfi)
-        st.dataframe(dfj)
+        #st.dataframe(dfe)
+        #st.dataframe(dff)
+        #st.dataframe(dfg)
+        #st.dataframe(dfh)
+        #st.dataframe(dfi)
+        #st.dataframe(dfj)
         
     except Exception as e:
         st.error(f"Error loading file: {e}")
