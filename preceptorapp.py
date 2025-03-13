@@ -393,11 +393,12 @@ if redcapmetrics is not None:
         dfi = preceptor_avg_sorted
 
         df = dfj 
-        df['combined_comments'] = df[['doccomment_v1', 'doccomment_v2']].apply(lambda x: ' '.join(x.dropna().astype(str)), axis=1)
+        df['combined_comments'] = df[['doccomment_v1', 'doccomment_v2']].apply(lambda row: ' '.join(row.dropna().astype(str)), axis=1)
+
         df['corrected_preceptors'] = df['oasis_cas'].apply(group_names)
         df_exploded = df.explode('corrected_preceptors')
 
-        df_exploded['documentation_summary'] = df_exploded.apply(lambda row: summarize_improvement(row['combined_comments'], row['corrected_preceptors']),axis=1)
+        #df_exploded['documentation_summary'] = df_exploded.apply(lambda row: summarize_improvement(row['combined_comments'], row['corrected_preceptors']),axis=1)
 
         dfj = df_exploded
 
