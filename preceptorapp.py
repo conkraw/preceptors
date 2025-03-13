@@ -295,20 +295,25 @@ if redcapmetrics is not None:
         dff = dfe 
         
         dfe = dfe.dropna(subset=['oasis_cas'])
-
         dfe['corrected_preceptors'] = dfe['oasis_cas'].apply(group_names)
-        
         # Explode to individual rows preserving full names correctly
         dfe = dfe.explode('corrected_preceptors')
-        
         # Count occurrences correctly for each full preceptor name by unique record_id
         dfe = dfe.groupby('corrected_preceptors')['record_id'].nunique().reset_index()
         dfe.columns = ['Preceptor', 'student_matches']
-        
         # Sort results
         dfe = dfe.sort_values(by='student_matches', ascending=False)
 
         dff['combined_weeks'] = dff[['week1', 'week2', 'week3', 'week4']].apply(lambda row: ', '.join(row.dropna().astype(str)), axis=1)
+        dff = dff.dropna(subset=['oasis_cas'])
+        dff['corrected_preceptors'] = dff['oasis_cas'].apply(group_names)
+        # Explode to individual rows preserving full names correctly
+        dff = dff.explode('corrected_preceptors')
+        # Count occurrences correctly for each full preceptor name by unique record_id
+        dff = dff.groupby('corrected_preceptors')['record_id'].nunique().reset_index()
+        dff.columns = ['Preceptor', 'student_assignments']
+        # Sort results
+        dff = dff.sort_values(by='student_assignments', ascending=False)
         
         st.dataframe(dfe)
         st.dataframe(dff)
