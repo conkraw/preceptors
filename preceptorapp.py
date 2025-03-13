@@ -393,6 +393,7 @@ if redcapmetrics is not None:
         df = dfj 
         df['combined_comments'] = df[['doccomment_v1', 'doccomment_v2']].apply(lambda row: ' '.join(row.dropna().astype(str)), axis=1)
         df = df[df['combined_comments'].str.strip().astype(bool)].copy()
+        df = df[df['combined_comments'].str.len() > 0]
         
         st.dataframe(df)
         #df['documentation_summary'] = df['combined_comments'].apply(summarize_feedback)
