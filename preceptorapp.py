@@ -392,13 +392,14 @@ if redcapmetrics is not None:
 
         df = dfj 
         df['combined_comments'] = df[['doccomment_v1', 'doccomment_v2']].apply(lambda row: ' '.join(row.dropna().astype(str)), axis=1)
-        df['documentation_summary'] = df['combined_comments'].apply(summarize_feedback)
+        st.dataframe(df)
+        #df['documentation_summary'] = df['combined_comments'].apply(summarize_feedback)
         
-        df['corrected_preceptors'] = df['oasis_cas'].apply(group_names)
-        df_exploded = df.explode('corrected_preceptors')
-        final_df = df_exploded[['corrected_preceptors', 'record_id', 'documentation_summary']]
+        #df['corrected_preceptors'] = df['oasis_cas'].apply(group_names)
+        #df_exploded = df.explode('corrected_preceptors')
+        #final_df = df_exploded[['corrected_preceptors', 'record_id', 'documentation_summary']]
 
-        dfj = final_df
+        #dfj = final_df
 
         st.dataframe(dfe)
         st.dataframe(dff)
