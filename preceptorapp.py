@@ -241,15 +241,24 @@ def improvement(improvement_preceptor, Evaluator):
     )
     return response['choices'][0]['message']['content'].strip()
 
-def summarize_feedback(comments):
+def summarize_feedback_for_preceptor(all_feedback, preceptor_name):
+    """
+    Summarizes the aggregated feedback from multiple students for a given preceptor,
+    ensuring student anonymity.
+    """
     prompt = f"""
     You are an expert in pediatric medical education.
 
-    Below are comments about an unidentified student's documentation during a pediatric clerkship:
+    Multiple students supervised by {preceptor_name} provided the following feedback 
+    regarding their documentation challenges:
 
-    "{comments}"
+    \"\"\"{all_feedback}\"\"\"
 
-    Provide a concise summary highlighting the primary opportunities for improvement in this student's documentation.
+    Please provide a concise summary of the common areas for improvement that {preceptor_name} 
+    can focus on when guiding future students. 
+    - Do NOT reference any specific student or reveal their identity.
+    - Discuss the collective issues observed across these students' feedback.
+    - Offer practical, high-level advice or strategies for {preceptor_name} to address these issues.
     """
 
     response = openai.ChatCompletion.create(
@@ -258,7 +267,8 @@ def summarize_feedback(comments):
             {"role": "system", "content": "You are an expert in pediatric medical education."},
             {"role": "user", "content": prompt}
         ],
-        max_tokens=100
+        max_tokens=100,
+        temperature=0.7
     )
 
     return response['choices'][0]['message']['content'].strip()
@@ -392,23 +402,23 @@ if redcapmetrics is not None:
 
         df = dfj 
         df['combined_comments'] = (df[['doccomment_v1', 'doccomment_v2']].apply(lambda row: ' '.join(row.dropna().astype(str)).strip(), axis=1))
-
         df['combined_comments'] = df['combined_comments'].replace(r'^\s*$', np.nan, regex=True)
         df = df.dropna(subset=['combined_comments']).copy()
-        
-        df['documentation_summary'] = df['combined_comments'].apply(summarize_feedback)
-        
         df['corrected_preceptors'] = df['oasis_cas'].apply(group_names)
         df_exploded = df.explode('corrected_preceptors')
-        final_df = df_exploded[['corrected_preceptors', 'record_id', 'documentation_summary']]
+        df_grouped = df_exploded.groupby('corrected_preceptors')['combined_comments'].apply(lambda rows: ' '.join(rows)).reset_index(name='all_comments')
+        
+        df_grouped['documentation_summary'] = df_grouped['all_comments'].apply(summarize_feedback)
+        final_df = df_grouped[['corrected_preceptors', 'documentation_summary']]
+
 
         dfj = final_df
 
-        #st.dataframe(dfe)
-        #st.dataframe(dff)
-        #st.dataframe(dfg)
-        #st.dataframe(dfh)
-        #st.dataframe(dfi)
+        st.dataframe(dfe)
+        st.dataframe(dff)
+        st.dataframe(dfg)
+        st.dataframe(dfh)
+        st.dataframe(dfi)
         st.dataframe(dfj)
         
     except Exception as e:
