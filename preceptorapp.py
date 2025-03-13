@@ -394,8 +394,9 @@ if redcapmetrics is not None:
         df['combined_comments'] = (df[['doccomment_v1', 'doccomment_v2']].apply(lambda row: ' '.join(row.dropna().astype(str)).strip(), axis=1))
 
         df['combined_comments'] = df['combined_comments'].replace(r'^\s*$', np.nan, regex=True)
+        df_filtered = df.dropna(subset=['combined_comments']).copy()
         
-        st.dataframe(df)
+        st.dataframe(df_filtered)
         #df['documentation_summary'] = df['combined_comments'].apply(summarize_feedback)
         
         #df['corrected_preceptors'] = df['oasis_cas'].apply(group_names)
