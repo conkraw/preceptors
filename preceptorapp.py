@@ -262,7 +262,7 @@ def summarize_feedback(comments):
             {"role": "system", "content": "You are an expert in pediatric medical education."},
             {"role": "user", "content": prompt}
         ],
-        max_tokens=100
+        max_tokens=500
     )
     return response['choices'][0]['message']['content'].strip()
     
@@ -591,7 +591,7 @@ if analysis_report_file is not None:
         
         # --- STEP 1: Identify Eligible Preceptors ---
         # Define the known text fields to identify numeric score columns.
-        known_cols = {"Evaluator", "Evaluator Email", "Rotation Period", "strengths_preceptor", "improvement_preceptor", "strengths_summary", "improvement_summary", "num_evaluations", "Form Record", "total_evaluations", "percentage_on_time"}
+        known_cols = {"Evaluator", "Evaluator Email", "Rotation Period", "strengths_preceptor", "improvement_preceptor", "strengths_summary", "improvement_summary", "num_evaluations", "Form Record", "total_evaluations", "percentage_on_time", "student_matches", "student_assignments", "average_prac_score", "average_doc_score", "average_nbme"}
 
         exclude_cols = {"total_evaluations", "percentage_on_time"}
         score_cols = [col for col in df_final.columns if pd.api.types.is_numeric_dtype(df_final[col]) and col not in exclude_cols]
