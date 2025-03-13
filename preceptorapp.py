@@ -778,11 +778,11 @@ if analysis_report_file is not None:
 
                 # Row 5: Percentage of Student Evaluations Completed within 14 days
                 details_table.cell(5, 0).text = "Number of Students Assigned to Preceptor:"
-                details_table.cell(5, 1).text = f"{row['student_assignments']:.1f}%"
+                details_table.cell(5, 1).text = str(row['student_assignments'])
 
                 # Row 6: Percentage of Student Evaluations Completed within 14 days
                 details_table.cell(6, 0).text = "Number of Times Preceptor Matched to Student:"
-                details_table.cell(6, 1).text = f"{row['student_assignments']:.1f}%"
+                details_table.cell(6, 1).text = str(row['student_matches'])
 
 
                 # Optionally set column widths
@@ -879,7 +879,50 @@ if analysis_report_file is not None:
                         bottom=border_style if is_last_row else None
                     )
                 
+                document.add_paragraph("")
+                                # Create a 3-row, 2-column table
+                details_table = document.add_table(rows=4, cols=2)
+                details_table.style = 'Table Grid'  # Or use your custom border logic
+                
+                # Define column widths if desired
+                col_width_left = Inches(3.0)
+                col_width_right = Inches(3.14)
+                
+                header_row = details_table.rows[0]
+                header_cells = header_row.cells
+                header_cells[0].text = "Assessment Metric"
+                header_cells[1].text = "Result"
 
+                # Shade the header cells a light gray
+                shade_cell(header_cells[0], "D3D3D3")  # Light gray
+                shade_cell(header_cells[1], "D3D3D3")  # Light gray
+                
+                # Bold the header text
+                for cell in header_cells:
+                    for paragraph in cell.paragraphs:
+                        for run in paragraph.runs:
+                            run.font.bold = True
+                
+                # Row 4: Percentage of Student Evaluations Completed within 14 days
+                details_table.cell(1, 0).text = "Practical Examination Score Average(%):"
+                details_table.cell(1, 1).text = f"{row['average_prac_score']:.1f}%"
+
+                # Row 5: Percentage of Student Evaluations Completed within 14 days
+                details_table.cell(2, 0).text = "Documentation Score Average (%)"
+                details_table.cell(2, 1).text = f"{row['average_doc_score']:.1f}%"
+
+                # Row 6: Percentage of Student Evaluations Completed within 14 days
+                details_table.cell(3, 0).text = "NBME Shelf Score Average (%)"
+                details_table.cell(3, 1).text = f"{row['average_nbme']:.1f}%"
+
+
+                # Optionally set column widths
+                for row_idx in range(4):
+                    details_table.cell(row_idx, 0).width = col_width_left
+                    details_table.cell(row_idx, 1).width = col_width_right
+                
+                document.add_paragraph("")
+                create_comment_table(document, "Student Documentation Comments", row["documentation_summary"], 6.14)
                 document.add_paragraph("")
                 create_comment_table(document, "Strengths Comments", row["strengths_preceptor"], 6.14)
                 document.add_paragraph("")
