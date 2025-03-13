@@ -302,10 +302,10 @@ if redcapmetrics is not None:
         
         # Count occurrences correctly for each full preceptor name by unique record_id
         dfe = dfe.groupby('corrected_preceptors')['record_id'].nunique().reset_index()
-        dfe.columns = ['Preceptor', 'Count of Unique Record IDs']
+        dfe.columns = ['Preceptor', 'student_matches']
         
         # Sort results
-        dfe = dfe.sort_values(by='Count of Unique Record IDs', ascending=False)
+        dfe = dfe.sort_values(by='student_matches', ascending=False)
 
         st.dataframe(dfe)
     except Exception as e:
