@@ -258,7 +258,7 @@ def summarize_feedback(comments):
             {"role": "system", "content": "You are an expert in pediatric medical education."},
             {"role": "user", "content": prompt}
         ],
-        max_tokens=300
+        max_tokens=100
     )
 
     return response['choices'][0]['message']['content'].strip()
