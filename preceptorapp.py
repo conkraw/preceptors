@@ -304,16 +304,30 @@ if redcapmetrics is not None:
         # Sort results
         dfe = dfe.sort_values(by='student_matches', ascending=False)
 
-        dff['combined_weeks'] = dff[['week1', 'week2', 'week3', 'week4']].apply(lambda row: ', '.join(row.dropna().astype(str)), axis=1)
         dff = dff.dropna(subset=['oasis_cas'])
-        dff['corrected_preceptors'] = dff['oasis_cas'].apply(group_names)
-        # Explode to individual rows preserving full names correctly
-        dff = dff.explode('corrected_preceptors')
-        # Count occurrences correctly for each full preceptor name by unique record_id
-        dff = dff.groupby('corrected_preceptors')['record_id'].nunique().reset_index()
-        dff.columns = ['Preceptor', 'student_assignments']
-        # Sort results
-        dff = dff.sort_values(by='student_assignments', ascending=False)
+        # Melt week columns into one column preserving record_id
+        df_melted = dff.melt(id_vars=['record_id'], value_vars=['week1', 'week2', 'week3', 'week4'], var_name='week', value_name='preceptor').dropna(subset=['value'])
+        
+        # Apply grouping names
+        df_melted['corrected_preceptors'] = df_melted['value'].apply(group_names)
+        
+        # Explode to one row per preceptor per week
+        df_exploded = df_melted.explode('corrected_preceptors')
+        
+        # Trim whitespace
+        df_exploded['corrected_preceptors'] = df_exploded['corrected_preceptors'].str.strip()
+        
+        # Count occurrences by preceptor across all weeks, including multiple matches per student (record_id)
+        preceptor_counts = df_exploded.groupby('corrected_preceptors').size().reset_index(name='student_matches')
+        
+        # Sort the data
+        df_final = df_exploded.groupby('corrected_preceptors')['record_id'].count().reset_index(name='student_assignments')
+        df_final_sorted = df_exploded.groupby(['corrected_preceptors', 'record_id']).size().reset_index(name='num_matches')
+        df_final = df_final_sorted.groupby('corrected_preceptors')['num_matches'].sum().reset_index().sort_values('num_matches', ascending=False)
+        
+        # Final clear output
+        df_final.columns = ['Preceptor', 'Total Student Matches Across All Weeks']
+        dff = df_final 
         
         st.dataframe(dfe)
         st.dataframe(dff)
