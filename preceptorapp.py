@@ -292,7 +292,8 @@ if redcapmetrics is not None:
         # Display the DataFrame in the app
         
         st.dataframe(dfe)
-
+        dff = dfe 
+        
         dfe = dfe.dropna(subset=['oasis_cas'])
 
         dfe['corrected_preceptors'] = dfe['oasis_cas'].apply(group_names)
@@ -307,7 +308,10 @@ if redcapmetrics is not None:
         # Sort results
         dfe = dfe.sort_values(by='student_matches', ascending=False)
 
+        dff['combined_weeks'] = dff[['week1', 'week2', 'week3', 'week4']].apply(lambda row: ', '.join(row.dropna().astype(str)), axis=1)
+        
         st.dataframe(dfe)
+        st.dataframe(dff)
     except Exception as e:
         st.error(f"Error loading file: {e}")
 
