@@ -241,7 +241,7 @@ def improvement(improvement_preceptor, Evaluator):
     )
     return response['choices'][0]['message']['content'].strip()
 
-def summarize_improvement(comments, preceptor_name):
+def summarize_feedback(comments):
     prompt = f"""
     You are an expert in pediatric medical education.
 
@@ -249,9 +249,7 @@ def summarize_improvement(comments, preceptor_name):
 
     "{comments}"
 
-    Provide a concise summary of the primary opportunities for improvement identified in the student's documentation.  
-    Address your summary explicitly to {preceptor_name}, advising them of these key areas to focus on when guiding future students.
-    Refer to {preceptor_name} by their first and last name or "Dr. Lastname" when providing recommendations.
+    Provide a concise summary highlighting the primary opportunities for improvement in this student's documentation.
     """
 
     response = openai.ChatCompletion.create(
@@ -394,13 +392,13 @@ if redcapmetrics is not None:
 
         df = dfj 
         df['combined_comments'] = df[['doccomment_v1', 'doccomment_v2']].apply(lambda row: ' '.join(row.dropna().astype(str)), axis=1)
-
+        df['documentation_summary'] = df['combined_comments'].apply(summarize_feedback)
+        
         df['corrected_preceptors'] = df['oasis_cas'].apply(group_names)
         df_exploded = df.explode('corrected_preceptors')
+        final_df = df_exploded[['corrected_preceptors', 'record_id', 'documentation_summary']]
 
-        #df_exploded['documentation_summary'] = df_exploded.apply(lambda row: summarize_improvement(row['combined_comments'], row['corrected_preceptors']),axis=1)
-
-        dfj = df_exploded
+        dfj = final_df
 
         st.dataframe(dfe)
         st.dataframe(dff)
