@@ -305,29 +305,22 @@ if redcapmetrics is not None:
         dfe = dfe.sort_values(by='student_matches', ascending=False)
 
         dff = dff.dropna(subset=['oasis_cas'])
-        # Melt week columns into one column preserving record_id
-        df_melted = dff.melt(id_vars=['record_id'], value_vars=['week1', 'week2', 'week3', 'week4'], var_name='week', value_name='preceptor').dropna(subset=['value'])
         
-        # Apply grouping names
-        df_melted['corrected_preceptors'] = df_melted['value'].apply(group_names)
-        
-        # Explode to one row per preceptor per week
-        df_exploded = df_melted.explode('corrected_preceptors')
-        
+        week_cols = ['week1', 'week2', 'week3', 'week4']
+        df_weeks = dff.melt(id_vars=['record_id'], value_vars=week_cols, var_name='week', value_name='preceptor')
+        df_weeks_cleaned = df_weeks.dropna(subset=['preceptor'])
+        # Apply name grouping function
+        df_weeks = df_exploded = df_exploded_cleaned = df_final = None
+        df_exploded = None
+        df_weeks['corrected_preceptors'] = df_weeks['value'].apply(group_names)
+        # Explode into individual rows (one per preceptor per student per week)
+        df_exploded = df_weeks.explode('corrected_preceptors')
         # Trim whitespace
         df_exploded['corrected_preceptors'] = df_exploded['corrected_preceptors'].str.strip()
-        
-        # Count occurrences by preceptor across all weeks, including multiple matches per student (record_id)
-        preceptor_counts = df_exploded.groupby('corrected_preceptors').size().reset_index(name='student_matches')
-        
-        # Sort the data
-        df_final = df_exploded.groupby('corrected_preceptors')['record_id'].count().reset_index(name='student_assignments')
-        df_final_sorted = df_exploded.groupby(['corrected_preceptors', 'record_id']).size().reset_index(name='num_matches')
-        df_final = df_final_sorted.groupby('corrected_preceptors')['num_matches'].sum().reset_index().sort_values('num_matches', ascending=False)
-        
-        # Final clear output
-        df_final.columns = ['Preceptor', 'Total Student Matches Across All Weeks']
-        dff = df_final 
+        # Now correctly count occurrences (preceptor-student-week combos)
+        # Each match of preceptor to record_id per week is counted
+        match_counts = df_exploded.groupby('corrected_preceptors').size().reset_index(name='match_count').sort_values('match_count', ascending=False)
+        dff = match_counts 
         
         st.dataframe(dfe)
         st.dataframe(dff)
