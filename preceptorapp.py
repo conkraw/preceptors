@@ -324,9 +324,9 @@ if redcapmetrics is not None:
         df_exploded['corrected_preceptors'] = df_exploded['corrected_preceptors'].str.strip()
         
         # Count each occurrence (preceptor matched per student per week separately)
-        match_counts = df_exploded.groupby('corrected_preceptors').size().reset_index(name='student_assignments').sort_values(by='match_count', ascending=False)
+        student_assignments = df_exploded.groupby('corrected_preceptors').size().reset_index(name='student_assignments').sort_values(by='student_assignments', ascending=False)
         
-        dff = match_counts
+        dff = student_assignments
         
         st.dataframe(dfe)
         st.dataframe(dff)
