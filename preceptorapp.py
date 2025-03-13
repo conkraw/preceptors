@@ -241,7 +241,28 @@ def improvement(improvement_preceptor, Evaluator):
     )
     return response['choices'][0]['message']['content'].strip()
 
+def summarize_improvement(comments, evaluator_name):
+    prompt = f"""
+    You are an expert in pediatric medical education.
 
+    {evaluator_name} received the following feedback regarding opportunities for improvement in documentation during a pediatric clerkship:
+    {comments}
+
+    Provide a concise summary of {evaluator_name}'s documentation opportunities for improvement. 
+    Refer to the individual by name (first and last or "Dr. Lastname") in your summary.
+    Assume the feedback pertains exclusively to this individual.
+    """
+
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": "You are an expert in pediatric medical education."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=300
+    )
+
+    return response['choices'][0]['message']['content'].strip()
     
 ########################################
 # 1) OPENAI & FIREBASE SETUP
@@ -297,7 +318,8 @@ if redcapmetrics is not None:
         dff = dfe 
         dfg = dfe 
         dfh = dfe 
-        dfi = dfe 
+        dfi = dfe
+        dfj = dfe 
         
         dfe = dfe.dropna(subset=['oasis_cas'])
         dfe['corrected_preceptors'] = dfe['oasis_cas'].apply(group_names)
@@ -368,12 +390,22 @@ if redcapmetrics is not None:
                                  .mean().reset_index(name='average_nbme')
         preceptor_avg_sorted = preceptor_avg_scores.sort_values(by='average_nbme', ascending=False)
         dfi = preceptor_avg_sorted
-        
+
+        df = dfj 
+        df['combined_comments'] = df[['doccomment_v1', 'doccomment_v2']].apply(lambda x: ' '.join(x.dropna().astype(str)), axis=1)
+        df['corrected_preceptors'] = df['oasis_cas'].apply(group_names)
+        df_exploded = df.explode('corrected_preceptors')
+
+        df_exploded['documentation_summary'] = df_exploded.apply(lambda row: summarize_improvement(row['combined_comments'], row['corrected_preceptors']),axis=1)
+
+        dfj = df_exploded
+
         st.dataframe(dfe)
         st.dataframe(dff)
         st.dataframe(dfg)
         st.dataframe(dfh)
         st.dataframe(dfi)
+        st.dataframe(dfj)
         
     except Exception as e:
         st.error(f"Error loading file: {e}")
