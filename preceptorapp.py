@@ -324,10 +324,12 @@ if redcapmetrics is not None:
         df_exploded['corrected_preceptors'] = df_exploded['corrected_preceptors'].str.strip()
         
         # Count each occurrence (preceptor matched per student per week separately)
-        match_counts = df_exploded.groupby('corrected_preceptors').size().reset_index(name='match_count').sort_values(by='match_count', ascending=False)
+        match_counts = df_exploded.groupby('corrected_preceptors').size().reset_index(name='student_assignments').sort_values(by='match_count', ascending=False)
+        
+        dff = match_counts
         
         st.dataframe(dfe)
-        st.dataframe(match_counts)
+        st.dataframe(dff)
     except Exception as e:
         st.error(f"Error loading file: {e}")
 
