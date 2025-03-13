@@ -395,6 +395,7 @@ if redcapmetrics is not None:
 
         df['combined_comments'] = df['combined_comments'].replace(r'^\s*$', np.nan, regex=True)
         df_filtered = df.dropna(subset=['combined_comments']).copy()
+        st.dataframe(df_filtered)
         st.write("Original dataframe shape:", df.shape)
         st.write("Filtered dataframe shape:", df_filtered.shape)
         
