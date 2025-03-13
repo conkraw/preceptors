@@ -11,6 +11,7 @@ import zipfile
 import docx
 import random 
 import numpy as np
+from functools import reduce
 from docx.shared import Inches
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
@@ -406,12 +407,10 @@ if redcapmetrics is not None:
 
         dfj = final_df
 
-        st.dataframe(dfe)
-        st.dataframe(dff)
-        st.dataframe(dfg)
-        st.dataframe(dfh)
-        st.dataframe(dfi)
-        st.dataframe(dfj)
+        df_list = [dfe, dff, dfg, dfh, dfi, dfj]
+        df_final = reduce(lambda left, right: pd.merge(left, right, on='corrected_preceptors', how='outer'), df_list)
+        st.dataframe(df_final)
+        
         
     except Exception as e:
         st.error(f"Error loading file: {e}")
