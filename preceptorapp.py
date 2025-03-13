@@ -241,16 +241,17 @@ def improvement(improvement_preceptor, Evaluator):
     )
     return response['choices'][0]['message']['content'].strip()
 
-def summarize_improvement(comments, evaluator_name):
+def summarize_improvement(comments, preceptor_name):
     prompt = f"""
     You are an expert in pediatric medical education.
 
-    {evaluator_name} received the following feedback regarding opportunities for improvement in documentation during a pediatric clerkship:
-    {comments}
+    Below are comments about an unidentified student's documentation during a pediatric clerkship:
 
-    Provide a concise summary of {evaluator_name}'s documentation opportunities for improvement. 
-    Refer to the individual by name (first and last or "Dr. Lastname") in your summary.
-    Assume the feedback pertains exclusively to this individual.
+    "{comments}"
+
+    Provide a concise summary of the primary opportunities for improvement identified in the student's documentation.  
+    Address your summary explicitly to {preceptor_name}, advising them of these key areas to focus on when guiding future students.
+    Refer to {preceptor_name} by their first and last name or "Dr. Lastname" when providing recommendations.
     """
 
     response = openai.ChatCompletion.create(
