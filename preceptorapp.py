@@ -351,7 +351,7 @@ if redcapmetrics is not None:
         # Calculate average score per preceptor
         preceptor_avg_scores = df_exploded.groupby('corrected_preceptors')['average_doc_score'] \
                                  .mean().reset_index(name='average_doc_score')
-        preceptor_avg_sorted = preceptor_avg_scores.sort_values(by='average_doc_score, ascending=False)
+        preceptor_avg_sorted = preceptor_avg_scores.sort_values(by='average_doc_score', ascending=False)
         dfg = preceptor_avg_sorted
         
         st.dataframe(dfe)
