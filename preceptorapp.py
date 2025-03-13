@@ -293,19 +293,21 @@ if redcapmetrics is not None:
         
         st.dataframe(dfe)
 
-        dataset_filtered['corrected_preceptors'] = dfe['oasis_cas'].apply(group_names)
+        dfe = dfe.dropna(subset=['oasis_cas'])
+
+        dfe['corrected_preceptors'] = dfe['oasis_cas'].apply(group_names)
         
         # Explode to individual rows preserving full names correctly
-        exploded_corrected = dataset_filtered.explode('corrected_preceptors')
+        dfe = dfe.explode('corrected_preceptors')
         
         # Count occurrences correctly for each full preceptor name by unique record_id
-        preceptor_corrected_counts = exploded_corrected.groupby('corrected_preceptors')['record_id'].nunique().reset_index()
-        preceptor_corrected_counts.columns = ['Preceptor', 'Count of Unique Record IDs']
+        dfe = dfe.groupby('corrected_preceptors')['record_id'].nunique().reset_index()
+        dfe.columns = ['Preceptor', 'Count of Unique Record IDs']
         
         # Sort results
-        preceptor_corrected_counts_sorted = preceptor_corrected_counts.sort_values(by='Count of Unique Record IDs', ascending=False)
+        dfe = dfe.sort_values(by='Count of Unique Record IDs', ascending=False)
 
-        st.dataframe(preceptor_corrected_counts_sorted)
+        st.dataframe(dfe)
     except Exception as e:
         st.error(f"Error loading file: {e}")
 
