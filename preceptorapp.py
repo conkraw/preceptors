@@ -282,7 +282,21 @@ if redcapmetrics is not None:
         elif redcapmetrics.name.endswith("xlsx"):
             dfe = pd.read_excel(redcapmetrics)
         # Display the DataFrame in the app
+        
         st.dataframe(dfe)
+        dataset_filtered = dfe.dropna(subset=['oasis_cas'])
+
+        # Split the preceptors in 'oasis_cas' and explode into individual rows
+        dataset_filtered['preceptor'] = dataset_filtered['oasis_cas'].str.split(',\s*')
+        exploded_data = dataset_filtered.explode('preceptor')
+        
+        # Count occurrences of each preceptor per unique record_id
+        preceptor_counts = exploded_data.groupby('preceptor')['record_id'].nunique().reset_index()
+        preceptor_counts.columns = ['Preceptor', 'Count of Unique Record IDs']
+        
+        # Sort results for better readability
+        preceptor_counts_sorted = preceptor_counts.sort_values(by='Count of Unique Record IDs', ascending=False)
+        st.dataframe(preceptor_counts_sorted)
     except Exception as e:
         st.error(f"Error loading file: {e}")
 
