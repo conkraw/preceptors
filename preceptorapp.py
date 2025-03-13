@@ -296,6 +296,8 @@ if redcapmetrics is not None:
         
         dff = dfe 
         dfg = dfe 
+        dfh = dfe 
+        dfi = dfe 
         
         dfe = dfe.dropna(subset=['oasis_cas'])
         dfe['corrected_preceptors'] = dfe['oasis_cas'].apply(group_names)
@@ -333,15 +335,29 @@ if redcapmetrics is not None:
         df_exploded['corrected_preceptors'] = df_exploded['corrected_preceptors'].str.strip()
         # Calculate average score per preceptor
         preceptor_avg_scores = df_exploded.groupby('corrected_preceptors')['average_prac_score'] \
-                                 .mean().reset_index(name='Average Student Score')
+                                 .mean().reset_index(name='average_prac_score')
+        preceptor_avg_sorted = preceptor_avg_scores.sort_values(by='average_prac_score', ascending=False)
+        dfg = preceptor_avg_sorted
 
-        # Sort the results
-        preceptor_avg_sorted = preceptor_avg_scores.sort_values(by='Average Student Score', ascending=False)
+        df = dfh.dropna(subset=['oasis_cas'])
+        # Calculate student-level average scores (ignoring NaNs)
+        df['average_doc_score'] = df[['scorep_v1', 'scorep_v2']].mean(axis=1, skipna=True)
+        # Apply grouping of names
+        df['corrected_preceptors'] = df['oasis_cas'].apply(group_names)
+        # Explode dataframe (one preceptor per row)
+        df_exploded = df.explode('corrected_preceptors')
+        # Trim whitespace
+        df_exploded['corrected_preceptors'] = df_exploded['corrected_preceptors'].str.strip()
+        # Calculate average score per preceptor
+        preceptor_avg_scores = df_exploded.groupby('corrected_preceptors')['average_doc_score'] \
+                                 .mean().reset_index(name='average_doc_score')
+        preceptor_avg_sorted = preceptor_avg_scores.sort_values(by='average_doc_score, ascending=False)
         dfg = preceptor_avg_sorted
         
         st.dataframe(dfe)
         st.dataframe(dff)
         st.dataframe(dfg)
+        st.dataframe(dfh)
         
     except Exception as e:
         st.error(f"Error loading file: {e}")
