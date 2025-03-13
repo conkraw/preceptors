@@ -392,8 +392,8 @@ if redcapmetrics is not None:
 
         df = dfj 
         df['combined_comments'] = df[['doccomment_v1', 'doccomment_v2']].apply(lambda row: ' '.join(row.dropna().astype(str)), axis=1)
-        df['combined_comments'].replace(r'^\s*$', np.nan, regex=True, inplace=True)
-        df_filtered = df.dropna(subset=['combined_comments']).reset_index(drop=True)
+        df['combined_comments'] = df['combined_comments'].replace(r'^\s*$', np.nan, regex=True)
+        df_filtered = df[df['combined_comments'].notna() & (df['combined_comments'].str.strip() != "")].reset_index(drop=True)
         
         st.dataframe(df_filtered)
         #df['documentation_summary'] = df['combined_comments'].apply(summarize_feedback)
