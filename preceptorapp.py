@@ -24,6 +24,14 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 st.set_page_config(layout="wide")
 
+# Define a function to group every two elements into a single name
+def group_names(name_str):
+    parts = [part.strip() for part in name_str.split(',')]
+    grouped_names = []
+    for i in range(0, len(parts) - 1, 2):
+        grouped_names.append(f"{parts[i]}, {parts[i + 1]}")
+    return grouped_names
+
 def shade_cell(cell, shade_color="D3D3D3"):
     """
     Applies background shading to a table cell.
@@ -284,19 +292,20 @@ if redcapmetrics is not None:
         # Display the DataFrame in the app
         
         st.dataframe(dfe)
-        dataset_filtered = dfe.dropna(subset=['oasis_cas'])
 
-        # Split the preceptors in 'oasis_cas' and explode into individual rows
-        dataset_filtered['preceptor'] = dataset_filtered['oasis_cas'].str.split(',\s*')
-        exploded_data = dataset_filtered.explode('preceptor')
+        dataset_filtered['corrected_preceptors'] = dfe['oasis_cas'].apply(group_names)
         
-        # Count occurrences of each preceptor per unique record_id
-        preceptor_counts = exploded_data.groupby('preceptor')['record_id'].nunique().reset_index()
-        preceptor_counts.columns = ['Preceptor', 'Count of Unique Record IDs']
+        # Explode to individual rows preserving full names correctly
+        exploded_corrected = dataset_filtered.explode('corrected_preceptors')
         
-        # Sort results for better readability
-        preceptor_counts_sorted = preceptor_counts.sort_values(by='Count of Unique Record IDs', ascending=False)
-        st.dataframe(preceptor_counts_sorted)
+        # Count occurrences correctly for each full preceptor name by unique record_id
+        preceptor_corrected_counts = exploded_corrected.groupby('corrected_preceptors')['record_id'].nunique().reset_index()
+        preceptor_corrected_counts.columns = ['Preceptor', 'Count of Unique Record IDs']
+        
+        # Sort results
+        preceptor_corrected_counts_sorted = preceptor_corrected_counts.sort_values(by='Count of Unique Record IDs', ascending=False)
+
+        st.dataframe(preceptor_corrected_counts_sorted)
     except Exception as e:
         st.error(f"Error loading file: {e}")
 
