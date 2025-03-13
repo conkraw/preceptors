@@ -253,7 +253,7 @@ db = firestore.client()
 st.title("Faculty Analysis Report & Evaluation Due Dates Upload")
 
 # Create two columns to display both upload buttons side by side
-col1, col2 = st.columns(2)
+col1, col2, col3 = st.columns(3)
 
 with col1:
     st.subheader("Evaluation Due Dates")
@@ -266,6 +266,13 @@ with col2:
     # Embed the website so users can view it directly
     st.markdown("[Faculty Evaluations](https://oasis.hersheymed.net/admin/course/e_manage/faculty/setup_analysis_report.html)")
     analysis_report_file = st.file_uploader("Upload Analysis Report", type=["pdf", "docx", "csv"])
+
+with col3:
+    st.subheader("Redcap Performance Metrics")
+    # Embed the website so users can view it directly
+    st.markdown("[Redcap Link](https://redcap.link/redcapperf)")
+    analysis_report_file = st.file_uploader("Upload Analysis Report", type=["pdf", "docx", "csv"])
+
 
 if evaluation_due_dates_file is not None:
     try:
