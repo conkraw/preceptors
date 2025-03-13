@@ -272,8 +272,18 @@ with col3:
     st.subheader("Redcap Metrics")
     # Embed the website so users can view it directly
     st.markdown("[REDCAP Link](https://redcap.ctsi.psu.edu/redcap_v14.5.43/DataExport/index.php?pid=16813&report_id=61309)")
-    analysis_report_file = st.file_uploader("Upload REDCAP Report", type=["pdf", "docx", "csv"])
+    redcapmetrics = st.file_uploader("Upload REDCAP Report", type=["pdf", "docx", "csv"])
 
+
+if redcapmetrics is not None:
+    try:
+        # Determine the file type and load accordingly
+        if redcapmetrics.name.endswith("csv"):
+            dfe = pd.read_csv(redcapmetrics)
+        elif redcapmetrics.name.endswith("xlsx"):
+            dfe = pd.read_excel(redcapmetrics)
+        # Display the DataFrame in the app
+        st.dataframe(dfe)
 
 if evaluation_due_dates_file is not None:
     try:
