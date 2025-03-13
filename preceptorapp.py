@@ -270,7 +270,7 @@ with col2:
 with col3:
     st.subheader("Redcap Performance Metrics")
     # Embed the website so users can view it directly
-    st.markdown("[Redcap Link](https://redcap.link/redcapperf)")
+    st.markdown("[Redcap Link](https://redcap.ctsi.psu.edu/redcap_v14.5.43/DataExport/index.php?pid=16813&report_id=61309)")
     analysis_report_file = st.file_uploader("Upload Analysis Report", type=["pdf", "docx", "csv"])
 
 
