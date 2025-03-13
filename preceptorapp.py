@@ -391,11 +391,11 @@ if redcapmetrics is not None:
         dfi = preceptor_avg_sorted
 
         df = dfj 
-        df['combined_comments'] = df[['doccomment_v1', 'doccomment_v2']].apply(lambda row: ' '.join(row.dropna().astype(str)), axis=1)
+        df['combined_comments'] = (df[['doccomment_v1', 'doccomment_v2']].apply(lambda row: ' '.join(row.dropna().astype(str)).strip(), axis=1))
+
         df['combined_comments'] = df['combined_comments'].replace(r'^\s*$', np.nan, regex=True)
-        df_filtered = df[df['combined_comments'].notna() & (df['combined_comments'].str.strip() != "")].reset_index(drop=True)
         
-        st.dataframe(df_filtered)
+        st.dataframe(df)
         #df['documentation_summary'] = df['combined_comments'].apply(summarize_feedback)
         
         #df['corrected_preceptors'] = df['oasis_cas'].apply(group_names)
