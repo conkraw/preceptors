@@ -241,24 +241,18 @@ def improvement(improvement_preceptor, Evaluator):
     )
     return response['choices'][0]['message']['content'].strip()
 
-def summarize_feedback_for_preceptor(all_feedback, preceptor_name):
-    """
-    Summarizes the aggregated feedback from multiple students for a given preceptor,
-    ensuring student anonymity.
-    """
+def summarize_feedback(comments):
+    # Example prompt that avoids identifying individual students
     prompt = f"""
     You are an expert in pediatric medical education.
 
-    Multiple students supervised by {preceptor_name} provided the following feedback 
-    regarding their documentation challenges:
+    The following comments summarize documentation issues observed among multiple students:
 
-    \"\"\"{all_feedback}\"\"\"
+    \"\"\"{comments}\"\"\"
 
-    Please provide a concise summary of the common areas for improvement that {preceptor_name} 
-    can focus on when guiding future students. 
-    - Do NOT reference any specific student or reveal their identity.
-    - Discuss the collective issues observed across these students' feedback.
-    - Offer practical, high-level advice or strategies for {preceptor_name} to address these issues.
+    Provide a concise, high-level summary of the primary documentation challenges 
+    these students faced. Do not reference individual students. 
+    Focus on how the preceptor can improve future students' documentation skills.
     """
 
     response = openai.ChatCompletion.create(
@@ -267,10 +261,8 @@ def summarize_feedback_for_preceptor(all_feedback, preceptor_name):
             {"role": "system", "content": "You are an expert in pediatric medical education."},
             {"role": "user", "content": prompt}
         ],
-        max_tokens=100,
-        temperature=0.7
+        max_tokens=100
     )
-
     return response['choices'][0]['message']['content'].strip()
     
 ########################################
