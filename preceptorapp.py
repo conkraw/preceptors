@@ -394,29 +394,22 @@ if redcapmetrics is not None:
         df['combined_comments'] = (df[['doccomment_v1', 'doccomment_v2']].apply(lambda row: ' '.join(row.dropna().astype(str)).strip(), axis=1))
 
         df['combined_comments'] = df['combined_comments'].replace(r'^\s*$', np.nan, regex=True)
-        df_filtered = df.dropna(subset=['combined_comments']).copy()
-        st.dataframe(df_filtered)
-        st.write("Original dataframe shape:", df.shape)
-        st.write("Filtered dataframe shape:", df_filtered.shape)
+        df = df.dropna(subset=['combined_comments']).copy()
         
-        # 6. Display the filtered dataframe
-        #st.dataframe(df_filtered[['record_id', 'doccomment_v1', 'doccomment_v2', 'combined_comments']])
+        df['documentation_summary'] = df['combined_comments'].apply(summarize_feedback)
         
-        #st.dataframe(df_filtered)
-        #df['documentation_summary'] = df['combined_comments'].apply(summarize_feedback)
-        
-        #df['corrected_preceptors'] = df['oasis_cas'].apply(group_names)
-        #df_exploded = df.explode('corrected_preceptors')
-        #final_df = df_exploded[['corrected_preceptors', 'record_id', 'documentation_summary']]
+        df['corrected_preceptors'] = df['oasis_cas'].apply(group_names)
+        df_exploded = df.explode('corrected_preceptors')
+        final_df = df_exploded[['corrected_preceptors', 'record_id', 'documentation_summary']]
 
-        #dfj = final_df
+        dfj = final_df
 
         #st.dataframe(dfe)
         #st.dataframe(dff)
         #st.dataframe(dfg)
         #st.dataframe(dfh)
         #st.dataframe(dfi)
-        #st.dataframe(dfj)
+        st.dataframe(dfj)
         
     except Exception as e:
         st.error(f"Error loading file: {e}")
