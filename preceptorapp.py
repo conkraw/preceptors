@@ -353,11 +353,27 @@ if redcapmetrics is not None:
                                  .mean().reset_index(name='average_doc_score')
         preceptor_avg_sorted = preceptor_avg_scores.sort_values(by='average_doc_score', ascending=False)
         dfh = preceptor_avg_sorted
+
+        df = dfi.dropna(subset=['oasis_cas'])
+        # Calculate student-level average scores (ignoring NaNs)
+        df['average_nbme'] = df[['nbme']].mean(axis=1, skipna=True)
+        # Apply grouping of names
+        df['corrected_preceptors'] = df['oasis_cas'].apply(group_names)
+        # Explode dataframe (one preceptor per row)
+        df_exploded = df.explode('corrected_preceptors')
+        # Trim whitespace
+        df_exploded['corrected_preceptors'] = df_exploded['corrected_preceptors'].str.strip()
+        # Calculate average score per preceptor
+        preceptor_avg_scores = df_exploded.groupby('corrected_preceptors')['average_nbme'] \
+                                 .mean().reset_index(name='average_nbme')
+        preceptor_avg_sorted = preceptor_avg_scores.sort_values(by='average_nbme', ascending=False)
+        dfi = preceptor_avg_sorted
         
         st.dataframe(dfe)
         st.dataframe(dff)
         st.dataframe(dfg)
         st.dataframe(dfh)
+        st.dataframe(dfi)
         
     except Exception as e:
         st.error(f"Error loading file: {e}")
