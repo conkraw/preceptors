@@ -332,7 +332,9 @@ if redcapmetrics is not None:
         # Trim whitespace
         df_exploded['corrected_preceptors'] = df_exploded['corrected_preceptors'].str.strip()
         # Calculate average score per preceptor
-        preceptor_avg_scores = df_exploded.groupby('corrected_preceptors')['average_prac_score'] \.mean().reset_index(name='Average Student Score')
+        preceptor_avg_scores = df_exploded.groupby('corrected_preceptors')['average_prac_score'] \
+                                 .mean().reset_index(name='Average Student Score')
+
         # Sort the results
         preceptor_avg_sorted = preceptor_avg_scores.sort_values(by='Average Student Score', ascending=False)
         dfg = preceptor_avg_sorted
