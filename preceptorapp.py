@@ -293,7 +293,9 @@ if redcapmetrics is not None:
         # Display the DataFrame in the app
         
         st.dataframe(dfe)
+        
         dff = dfe 
+        dfg = dfe 
         
         dfe = dfe.dropna(subset=['oasis_cas'])
         dfe['corrected_preceptors'] = dfe['oasis_cas'].apply(group_names)
@@ -306,30 +308,39 @@ if redcapmetrics is not None:
         dfe = dfe.sort_values(by='student_matches', ascending=False)
 
         dff = dff.dropna(subset=['oasis_cas'])
-        
         # Combine 'week' columns into one using melt
-        df_melted = dff.melt(id_vars=['record_id'], value_vars=['week1', 'week2', 'week3', 'week4'],
-                            var_name='week', value_name='week_preceptor')
-        
+        df_melted = dff.melt(id_vars=['record_id'], value_vars=['week1', 'week2', 'week3', 'week4'], var_name='week', value_name='week_preceptor')
         # Drop NaNs resulting from melting
         df_melted = df_melted.dropna(subset=['week_preceptor'])
-        
         # Apply group_names function to melted data safely
         df_melted['corrected_preceptors'] = df_melted['week_preceptor'].apply(group_names)
-        
         # Explode to individual rows per preceptor
         df_exploded = df_melted.explode('corrected_preceptors')
-        
         # Clean whitespace
         df_exploded['corrected_preceptors'] = df_exploded['corrected_preceptors'].str.strip()
-        
         # Count each occurrence (preceptor matched per student per week separately)
         student_assignments = df_exploded.groupby('corrected_preceptors').size().reset_index(name='student_assignments').sort_values(by='student_assignments', ascending=False)
-        
         dff = student_assignments
+
+        df = dfg.dropna(subset=['oasis_cas'])
+        # Calculate student-level average scores (ignoring NaNs)
+        df['average_prac_score'] = df[['total_prac_scorep_v1', 'total_prac_scorep_v2']].mean(axis=1, skipna=True)
+        # Apply grouping of names
+        df['corrected_preceptors'] = df['oasis_cas'].apply(group_names)
+        # Explode dataframe (one preceptor per row)
+        df_exploded = df.explode('corrected_preceptors')
+        # Trim whitespace
+        df_exploded['corrected_preceptors'] = df_exploded['corrected_preceptors'].str.strip()
+        # Calculate average score per preceptor
+        preceptor_avg_scores = df_exploded.groupby('corrected_preceptors')['average_prac_score'] \.mean().reset_index(name='Average Student Score')
+        # Sort the results
+        preceptor_avg_sorted = preceptor_avg_scores.sort_values(by='Average Student Score', ascending=False)
+        dfg = preceptor_avg_sorted
         
         st.dataframe(dfe)
         st.dataframe(dff)
+        st.dataframe(dfg)
+        
     except Exception as e:
         st.error(f"Error loading file: {e}")
 
