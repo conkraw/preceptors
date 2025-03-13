@@ -327,7 +327,7 @@ if redcapmetrics is not None:
         dfe = dfe.explode('corrected_preceptors')
         # Count occurrences correctly for each full preceptor name by unique record_id
         dfe = dfe.groupby('corrected_preceptors')['record_id'].nunique().reset_index()
-        dfe.columns = ['Preceptor', 'student_matches']
+        dfe.columns = ['corrected_preceptors', 'student_matches']
         # Sort results
         dfe = dfe.sort_values(by='student_matches', ascending=False)
 
