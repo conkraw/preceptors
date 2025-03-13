@@ -409,9 +409,13 @@ if redcapmetrics is not None:
 
         df_list = [dfe, dff, dfg, dfh, dfi, dfj]
         df_final = reduce(lambda left, right: pd.merge(left, right, on='corrected_preceptors', how='outer'), df_list)
+        df_final.rename(columns={'corrected_preceptors': 'Evaluator'}, inplace=True)
+        
         st.dataframe(df_final)
-        
-        
+        groupedx = df_final.reset_index()
+        # Now, if you still need to set it as the index for further operations:
+        groupedx = groupedx.set_index('Evaluator')
+
     except Exception as e:
         st.error(f"Error loading file: {e}")
 
@@ -467,8 +471,6 @@ if analysis_report_file is not None:
         
         selected_indices = [4, 5, 16, 19, 23, 27, 30, 34, 37, 41, 44, 48, 51, 55, 58, 62,65, 69, 72, 76, 79, 83, 86, 90, 93, 97, 100, 104, 107, 111, 114, 118, 121, 125, 128, 132, 135, 139, 143, 146, 147, 153, 154]
         dfa = dfa.iloc[:, selected_indices]
-        #st.dataframe(dfa)
-        #st.write(list(dfa.columns))
 
         df = dfa.copy()
         rename_mapping = {}
@@ -492,8 +494,6 @@ if analysis_report_file is not None:
         # Optionally, remove the question columns if they are no longer needed
         question_columns = [col for col in df.columns if re.match(r'^\d+\s+Question$', col)]
         df.drop(columns=question_columns, inplace=True)
-        #st.write(list(df.columns))
-        #st.dataframe(df)
 
         df['Rotation Period'] = pd.to_datetime(df.iloc[:, 0], errors='coerce').dt.strftime('%B %Y')
     
@@ -578,7 +578,13 @@ if analysis_report_file is not None:
         # Map the values to df_final
         df_final['total_evaluations'] = df_final['Evaluator'].map(grouped['total_evaluations'])
         df_final['percentage_on_time'] = df_final['Evaluator'].map(grouped['percentage_on_time'])
-
+        
+        df_final['student_matches'] = df_final['Evaluator'].map(groupedx['student_matches'])
+        df_final['student_assignments'] = df_final['Evaluator'].map(groupedx['student_assignments'])
+        df_final['average_prac_score'] = df_final['Evaluator'].map(groupedx['average_prac_score'])
+        df_final['average_doc_score'] = df_final['Evaluator'].map(groupedx['average_doc_score'])
+        df_final['average_nbme'] = df_final['Evaluator'].map(groupedx['average_nbme'])
+        df_final['documentation_summary'] = df_final['Evaluator'].map(groupedx['documentation_summary'])
         
         # Display the final aggregated DataFrame with the count of evaluations
         st.dataframe(df_final)
