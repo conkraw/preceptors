@@ -628,8 +628,10 @@ if analysis_report_file is not None:
             # Add the spotlight summary to the DataFrame (if desired)
             df_final.loc[df_final["Evaluator"] == selected_candidate["Evaluator"], "spotlight_summary"] = spotlight_reason
 
-            st.dataframe(df_final)
-            
+            df_spotlight = df_final[df_final["Evaluator"] == selected_candidate["Evaluator"]]
+
+
+             
             # --- STEP 3: Upload the Spotlight Record to Firebase ---
             # Use the evaluator's name as the document ID.
             record = {
@@ -650,7 +652,7 @@ if analysis_report_file is not None:
             ###########################################################################################
 
             # --- STEP 4: Create a Word Document for the Spotlight Candidate ---
-            for idx, row in df_final.iterrows():
+            for idx, row in df_spotlight.iterrows():
                 document = docx.Document()
                 paragraph = document.add_paragraph("PRECEPTOR SPOTLIGHT SUMMARY")
                     
