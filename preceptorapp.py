@@ -629,7 +629,7 @@ if analysis_report_file is not None:
             
             # Add the spotlight summary to the DataFrame (if desired)
             df_final.loc[df_final["Evaluator"] == selected_candidate["Evaluator"], "spotlight_summary"] = spotlight_reason
-
+            st.dataframe(df_final)
             df_spotlight = df_final[df_final["Evaluator"] == selected_candidate["Evaluator"]]
 
 
