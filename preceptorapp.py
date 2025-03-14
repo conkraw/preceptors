@@ -598,24 +598,19 @@ if analysis_report_file is not None:
         # Define the known text fields to identify numeric score columns.
         known_cols = {"Evaluator", "Evaluator Email", "Rotation Period", "strengths_preceptor", "improvement_preceptor", "strengths_summary", "improvement_summary", "num_evaluations", "Form Record", "total_evaluations", "percentage_on_time", "student_matches", "student_assignments", "average_prac_score", "average_doc_score", "average_nbme"}
 
-        exclude_cols = {"total_evaluations", "percentage_on_time"}
+        exclude_cols = {"total_evaluations", "percentage_on_time", "num_evaluations", "student_matches", "student_assignments", "average_prac_score", "average_doc_score", "average_nbme"}
         score_cols = [col for col in df_final.columns if pd.api.types.is_numeric_dtype(df_final[col]) and col not in exclude_cols]
-    
-        # Identify evaluation score columns as those numeric columns not in known_cols.
-        #score_cols = [col for col in df_final.columns if col not in known_cols and pd.api.types.is_numeric_dtype(df_final[col])]
-        st.json(score_cols) 
+        
         # Filter for eligible preceptors: every evaluation score must be 4.5 or above.
         eligible_df = df_final[df_final[score_cols].ge(4.5).all(axis=1)].copy()
-        #eligible_df = df_final[df_final[score_cols].ge(4).all(axis=1)].copy()
-        st.dataframe(df_final)
-        st.dataframe(eligible_df)
+
 
         ###########################################################################################
         # Retrieve already spotlighted evaluators from Firebase.
-        spotlight_docs = db.collection("spotlight").stream()
-        spotlight_evaluators = {doc.to_dict().get("Evaluator") for doc in spotlight_docs}        
+        #spotlight_docs = db.collection("spotlight").stream()
+        #spotlight_evaluators = {doc.to_dict().get("Evaluator") for doc in spotlight_docs}        
         # Exclude evaluators already in the spotlight.
-        eligible_df = eligible_df[~eligible_df["Evaluator"].isin(spotlight_evaluators)]
+        #eligible_df = eligible_df[~eligible_df["Evaluator"].isin(spotlight_evaluators)]
         ###########################################################################################
         
         if eligible_df.empty:
