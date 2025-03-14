@@ -649,11 +649,22 @@ if analysis_report_file is not None:
             
             # --- STEP 4: Create a Word Document for the Spotlight Candidate ---
             document = docx.Document()
+            paragraph = document.add_paragraph("PRECEPTOR PERFORMANCE SUMMARY")
+                
+            # Format the run
+            run = paragraph.runs[0]
+            run.bold = True
+            run.underline = True
+                
+            # Center the paragraph
+            paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            document.add_paragraph("")
+                
             
-            document.add_heading(f"Spotlight Preceptor: {selected_candidate['Evaluator']}", level=1)
-            document.add_paragraph(f"Email: {selected_candidate['Evaluator Email']}")
-            document.add_paragraph(f"Number of Evaluations: {selected_candidate['num_evaluations']}")
-            document.add_paragraph(f"Rotation Period(s): {selected_candidate['Rotation Period']}")
+            #document.add_heading(f"Spotlight Preceptor: {selected_candidate['Evaluator']}", level=1)
+            #document.add_paragraph(f"Email: {selected_candidate['Evaluator Email']}")
+            #document.add_paragraph(f"Number of Evaluations: {selected_candidate['num_evaluations']}")
+            #document.add_paragraph(f"Rotation Period(s): {selected_candidate['Rotation Period']}")
             
             document.add_heading("Evaluation Scores", level=2)
             for col in df_final.columns:
