@@ -648,104 +648,105 @@ if analysis_report_file is not None:
             ###########################################################################################
             
             # --- STEP 4: Create a Word Document for the Spotlight Candidate ---
-            document = docx.Document()
-            paragraph = document.add_paragraph("PRECEPTOR SPOTLIGHT SUMMARY")
+            for idx, row in df_final.iterrows():
+                document = docx.Document()
+                paragraph = document.add_paragraph("PRECEPTOR SPOTLIGHT SUMMARY")
+                    
+                # Format the run
+                run = paragraph.runs[0]
+                run.bold = True
+                run.underline = True
+                    
+                # Center the paragraph
+                paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                document.add_paragraph("")
+    
+                style = document.styles['Normal']
+                style.font.size = Pt(9)
                 
-            # Format the run
-            run = paragraph.runs[0]
-            run.bold = True
-            run.underline = True
+                document.styles['Normal'].paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
+                document.styles['Normal'].paragraph_format.space_before = Pt(0)
+                document.styles['Normal'].paragraph_format.space_after = Pt(0)
+    
+                # Create a table with 1 row and 2 columns and a grid style
+                table = document.add_table(rows=1, cols=2)
+                table.style = 'Table Grid'
                 
-            # Center the paragraph
-            paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            document.add_paragraph("")
-
-            style = document.styles['Normal']
-            style.font.size = Pt(9)
+                # Optionally disable autofit if available (not always effective)
+                # table.autofit = False
+                
+                # Set each column's cell widths individually:
+                for cell in table.columns[0].cells:
+                    set_cell_width(cell, 3)  # 3.45 inches for first column
+                for cell in table.columns[1].cells:
+                    set_cell_width(cell, 3.14)  # 2.69 inches for second column
+                
+                # Populate the cells with your content:
+                cell_label = table.rows[0].cells[0]
+                cell_value = table.rows[0].cells[1]
+                
+                # Add bolded "Preceptor:" in the first cell
+                p_label = cell_label.paragraphs[0]
+                run_label = p_label.add_run("Preceptor: ")
+                run_label.bold = True
+                
+                # Add the preceptor name in the second cell (assuming row['Evaluator'] holds the name)
+                p_value = cell_value.paragraphs[0]
+                p_value.add_run(row['Evaluator'])
+    
+                shade_cell(cell_label, "ADD8E6")
+                shade_cell(cell_value, "ADD8E6")
+    
+                document.add_paragraph("")
+    
+                # Create a 6-row, 2-column table
+                details_table = document.add_table(rows=7, cols=2)
+                details_table.style = 'Table Grid'  # Or use your custom border logic
+                
+                # Define column widths if desired
+                col_width_left = Inches(3.0)
+                col_width_right = Inches(3.14)
+                
+                header_row = details_table.rows[0]
+                header_cells = header_row.cells
+                header_cells[0].text = "Evaluation Metric"
+                header_cells[1].text = "Result"
+    
+                # Shade the header cells a light gray
+                shade_cell(header_cells[0], "D3D3D3")  # Light gray
+                shade_cell(header_cells[1], "D3D3D3")  # Light gray
+                
+                # Bold the header text
+                for cell in header_cells:
+                    for paragraph in cell.paragraphs:
+                        for run in paragraph.runs:
+                            run.font.bold = True
             
-            document.styles['Normal'].paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
-            document.styles['Normal'].paragraph_format.space_before = Pt(0)
-            document.styles['Normal'].paragraph_format.space_after = Pt(0)
-
-            # Create a table with 1 row and 2 columns and a grid style
-            table = document.add_table(rows=1, cols=2)
-            table.style = 'Table Grid'
-            
-            # Optionally disable autofit if available (not always effective)
-            # table.autofit = False
-            
-            # Set each column's cell widths individually:
-            for cell in table.columns[0].cells:
-                set_cell_width(cell, 3)  # 3.45 inches for first column
-            for cell in table.columns[1].cells:
-                set_cell_width(cell, 3.14)  # 2.69 inches for second column
-            
-            # Populate the cells with your content:
-            cell_label = table.rows[0].cells[0]
-            cell_value = table.rows[0].cells[1]
-            
-            # Add bolded "Preceptor:" in the first cell
-            p_label = cell_label.paragraphs[0]
-            run_label = p_label.add_run("Preceptor: ")
-            run_label.bold = True
-            
-            # Add the preceptor name in the second cell (assuming row['Evaluator'] holds the name)
-            p_value = cell_value.paragraphs[0]
-            p_value.add_run(row['Evaluator'])
-
-            shade_cell(cell_label, "ADD8E6")
-            shade_cell(cell_value, "ADD8E6")
-
-            document.add_paragraph("")
-
-            # Create a 6-row, 2-column table
-            details_table = document.add_table(rows=7, cols=2)
-            details_table.style = 'Table Grid'  # Or use your custom border logic
-            
-            # Define column widths if desired
-            col_width_left = Inches(3.0)
-            col_width_right = Inches(3.14)
-            
-            header_row = details_table.rows[0]
-            header_cells = header_row.cells
-            header_cells[0].text = "Evaluation Metric"
-            header_cells[1].text = "Result"
-
-            # Shade the header cells a light gray
-            shade_cell(header_cells[0], "D3D3D3")  # Light gray
-            shade_cell(header_cells[1], "D3D3D3")  # Light gray
-            
-            # Bold the header text
-            for cell in header_cells:
-                for paragraph in cell.paragraphs:
-                    for run in paragraph.runs:
-                        run.font.bold = True
-        
-            #document.add_heading(f"Spotlight Preceptor: {selected_candidate['Evaluator']}", level=1)
-            #document.add_paragraph(f"Email: {selected_candidate['Evaluator Email']}")
-            #document.add_paragraph(f"Number of Evaluations: {selected_candidate['num_evaluations']}")
-            #document.add_paragraph(f"Rotation Period(s): {selected_candidate['Rotation Period']}")
-            
-            document.add_heading("Evaluation Scores", level=2)
-            for col in df_final.columns:
-                if col not in known_cols and pd.api.types.is_numeric_dtype(df_final[col]):
-                    # Remove any trailing period from the column name.
-                    clean_col = col.rstrip('.')
-                    document.add_paragraph(f"{clean_col}: {selected_candidate[col]:.2f}")
-            
-            document.add_heading("Strengths Comments", level=2)
-            document.add_paragraph(str(selected_candidate["strengths_preceptor"]))
-            
-            document.add_heading("Opportunities for Improvement Comments", level=2)
-            document.add_paragraph(str(selected_candidate["improvement_preceptor"]))
-            
-            document.add_heading("Spotlight Summary", level=2)
-            document.add_paragraph(spotlight_reason)
-            
-            # --- STEP 5: Provide a Download Button for the Word Document ---
-            doc_buffer = io.BytesIO()
-            document.save(doc_buffer)
-            doc_buffer.seek(0)
+                #document.add_heading(f"Spotlight Preceptor: {selected_candidate['Evaluator']}", level=1)
+                #document.add_paragraph(f"Email: {selected_candidate['Evaluator Email']}")
+                #document.add_paragraph(f"Number of Evaluations: {selected_candidate['num_evaluations']}")
+                #document.add_paragraph(f"Rotation Period(s): {selected_candidate['Rotation Period']}")
+                
+                document.add_heading("Evaluation Scores", level=2)
+                for col in df_final.columns:
+                    if col not in known_cols and pd.api.types.is_numeric_dtype(df_final[col]):
+                        # Remove any trailing period from the column name.
+                        clean_col = col.rstrip('.')
+                        document.add_paragraph(f"{clean_col}: {selected_candidate[col]:.2f}")
+                
+                document.add_heading("Strengths Comments", level=2)
+                document.add_paragraph(str(selected_candidate["strengths_preceptor"]))
+                
+                document.add_heading("Opportunities for Improvement Comments", level=2)
+                document.add_paragraph(str(selected_candidate["improvement_preceptor"]))
+                
+                document.add_heading("Spotlight Summary", level=2)
+                document.add_paragraph(spotlight_reason)
+                
+                # --- STEP 5: Provide a Download Button for the Word Document ---
+                doc_buffer = io.BytesIO()
+                document.save(doc_buffer)
+                doc_buffer.seek(0)
             
             st.download_button(label="Download Spotlight Word Document", data=doc_buffer, file_name=f"{selected_candidate['Evaluator']}_spotlight.docx", mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",key="download_spotlight_doc")
 
