@@ -608,10 +608,10 @@ if analysis_report_file is not None:
 
         ###########################################################################################
         # Retrieve already spotlighted evaluators from Firebase.
-        #spotlight_docs = db.collection("spotlight").stream()
-        #spotlight_evaluators = {doc.to_dict().get("Evaluator") for doc in spotlight_docs}        
+        spotlight_docs = db.collection("spotlight").stream()
+        spotlight_evaluators = {doc.to_dict().get("Evaluator") for doc in spotlight_docs}        
         # Exclude evaluators already in the spotlight.
-        #eligible_df = eligible_df[~eligible_df["Evaluator"].isin(spotlight_evaluators)]
+        eligible_df = eligible_df[~eligible_df["Evaluator"].isin(spotlight_evaluators)]
         ###########################################################################################
         
         if eligible_df.empty:
