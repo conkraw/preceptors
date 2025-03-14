@@ -606,7 +606,7 @@ if analysis_report_file is not None:
         # Filter for eligible preceptors: every evaluation score must be 4.5 or above.
         eligible_df = df_final[df_final[score_cols].ge(4.5).all(axis=1)].copy()
         #eligible_df = df_final[df_final[score_cols].ge(4).all(axis=1)].copy()
-
+        st.dataframe(df_final)
         st.dataframe(eligible_df)
 
         ###########################################################################################
