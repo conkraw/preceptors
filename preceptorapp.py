@@ -646,7 +646,8 @@ if analysis_report_file is not None:
             #db.collection("spotlight").document(selected_candidate["Evaluator"]).set(record)
             #st.success(f"Spotlight selected: {selected_candidate['Evaluator']}")
             ###########################################################################################
-            
+
+            st.dataframe(df_final)
             # --- STEP 4: Create a Word Document for the Spotlight Candidate ---
             for idx, row in df_final.iterrows():
                 document = docx.Document()
