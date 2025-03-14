@@ -403,9 +403,9 @@ if redcapmetrics is not None:
         df_grouped = df_exploded.groupby('corrected_preceptors')['combined_comments'].apply(lambda rows: ' '.join(rows)).reset_index(name='all_comments')
 
         #######################AI DOCUMENTATION SUMMARY#######################
-        #df_grouped['documentation_summary'] = df_grouped['all_comments'].apply(summarize_feedback)
+        df_grouped['documentation_summary'] = df_grouped['all_comments'].apply(summarize_feedback)
 
-        df_grouped['documentation_summary'] = "test"
+        #df_grouped['documentation_summary'] = "test"
         ######################################################################
 
         
@@ -473,7 +473,7 @@ if analysis_report_file is not None:
 
         ###########################################################################################
         # First, filter the DataFrame based on Firebase:
-        #dfa = dfa[~dfa["Form Record"].apply(lambda record: check_and_add_record(record))]
+        dfa = dfa[~dfa["Form Record"].apply(lambda record: check_and_add_record(record))]
         ###########################################################################################
         
         selected_indices = [4, 5, 16, 19, 23, 27, 30, 34, 37, 41, 44, 48, 51, 55, 58, 62,65, 69, 72, 76, 79, 83, 86, 90, 93, 97, 100, 104, 107, 111, 114, 118, 121, 125, 128, 132, 135, 139, 143, 146, 147, 153, 154]
@@ -575,11 +575,11 @@ if analysis_report_file is not None:
         df_final = df_grouped.groupby(final_group_cols, as_index=False).agg(agg_funcs)
 
         #############################################################################################################################
-        df_final["strengths_summary"] = "test"
-        df_final["improvement_summary"] = "test"
+        #df_final["strengths_summary"] = "test"
+        #df_final["improvement_summary"] = "test"
         
-        #df_final["strengths_summary"] = df_final.apply(lambda row: strengths(row["strengths_preceptor"], row["Evaluator"]), axis=1)
-        #df_final["improvement_summary"] = df_final.apply(lambda row: improvement(row["improvement_preceptor"], row["Evaluator"]), axis=1)
+        df_final["strengths_summary"] = df_final.apply(lambda row: strengths(row["strengths_preceptor"], row["Evaluator"]), axis=1)
+        df_final["improvement_summary"] = df_final.apply(lambda row: improvement(row["improvement_preceptor"], row["Evaluator"]), axis=1)
         #############################################################################################################################
         
         # Map the values to df_final
@@ -609,10 +609,10 @@ if analysis_report_file is not None:
 
         ###########################################################################################
         # Retrieve already spotlighted evaluators from Firebase.
-        #spotlight_docs = db.collection("spotlight").stream()
-        #spotlight_evaluators = {doc.to_dict().get("Evaluator") for doc in spotlight_docs}        
+        spotlight_docs = db.collection("spotlight").stream()
+        spotlight_evaluators = {doc.to_dict().get("Evaluator") for doc in spotlight_docs}        
         # Exclude evaluators already in the spotlight.
-        #eligible_df = eligible_df[~eligible_df["Evaluator"].isin(spotlight_evaluators)]
+        eligible_df = eligible_df[~eligible_df["Evaluator"].isin(spotlight_evaluators)]
         ###########################################################################################
         
         if eligible_df.empty:
@@ -623,8 +623,8 @@ if analysis_report_file is not None:
 
             ###########################################################################################
             # Generate a spotlight summary using ChatGPT (based on the strengths feedback)
-            #spotlight_reason = generate_spotlight_summary(selected_candidate["strengths_preceptor"], selected_candidate["Evaluator"])
-            spotlight_reason = "test"
+            spotlight_reason = generate_spotlight_summary(selected_candidate["strengths_preceptor"], selected_candidate["Evaluator"])
+            #spotlight_reason = "test"
             ###########################################################################################
             
             # Add the spotlight summary to the DataFrame (if desired)
@@ -649,8 +649,8 @@ if analysis_report_file is not None:
 
 
             ###########################################################################################
-            #db.collection("spotlight").document(selected_candidate["Evaluator"]).set(record)
-            #st.success(f"Spotlight selected: {selected_candidate['Evaluator']}")
+            db.collection("spotlight").document(selected_candidate["Evaluator"]).set(record)
+            st.success(f"Spotlight selected: {selected_candidate['Evaluator']}")
             ###########################################################################################
 
             # --- STEP 4: Create a Word Document for the Spotlight Candidate ---
