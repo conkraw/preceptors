@@ -400,8 +400,12 @@ if redcapmetrics is not None:
         df['corrected_preceptors'] = df['oasis_cas'].apply(group_names)
         df_exploded = df.explode('corrected_preceptors')
         df_grouped = df_exploded.groupby('corrected_preceptors')['combined_comments'].apply(lambda rows: ' '.join(rows)).reset_index(name='all_comments')
+
+        #######################AI DOCUMENTATION SUMMARY#######################
+        #df_grouped['documentation_summary'] = df_grouped['all_comments'].apply(summarize_feedback)
+        ######################################################################
+        df_grouped['documentation_summary'] = "test"
         
-        df_grouped['documentation_summary'] = df_grouped['all_comments'].apply(summarize_feedback)
         final_df = df_grouped[['corrected_preceptors', 'documentation_summary']]
 
 
