@@ -912,7 +912,7 @@ if analysis_report_file is not None:
         with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zipf:
             # Loop through each evaluator in df_final
             df_final = df_final.loc[df_final['num_evaluations'] >= 3]
-            
+            st.dataframe(df_final)
             for idx, row in df_final.iterrows():
                 # Create a new Word document for each evaluator
                 document = docx.Document()
