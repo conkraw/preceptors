@@ -537,7 +537,7 @@ if analysis_report_file is not None:
         df_grouped = df_grouped[ordered_columns]
         
         # Display the final aggregated DataFrame in your Streamlit app
-        #st.dataframe(df_grouped)
+        st.dataframe(df_grouped)
 
         final_group_cols = ["Evaluator", "Evaluator Email"]
         
