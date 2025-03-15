@@ -595,6 +595,7 @@ if analysis_report_file is not None:
         
         # Display the final aggregated DataFrame with the count of evaluations
         st.dataframe(df_final)
+        st.write("test")
         
         # --- STEP 1: Identify Eligible Preceptors ---
         # Define the known text fields to identify numeric score columns.
