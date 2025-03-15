@@ -422,6 +422,7 @@ if redcapmetrics is not None:
         groupedx = df_final.reset_index()
         # Now, if you still need to set it as the index for further operations:
         groupedx = groupedx.set_index('Evaluator')
+        st.write("RedCap Metrics Uploaded")
 
     except Exception as e:
         st.error(f"Error loading file: {e}")
@@ -456,7 +457,7 @@ if evaluation_due_dates_file is not None:
         grouped = grouped.reset_index()
         # Now, if you still need to set it as the index for further operations:
         grouped = grouped.set_index('Evaluator')
-
+        st.write("Evaluation Due Dates Uploaded")
         
 
     except Exception as e:
@@ -573,7 +574,7 @@ if analysis_report_file is not None:
         # Group by Evaluator and Evaluator Email using the updated aggregation functions
         final_group_cols = ["Evaluator", "Evaluator Email"]
         df_final = df_grouped.groupby(final_group_cols, as_index=False).agg(agg_funcs)
-
+        st.write("Preceptor Evaluation Pre AI")
         #############################################################################################################################
         #df_final["strengths_summary"] = "test"
         #df_final["improvement_summary"] = "test"
