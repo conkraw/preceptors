@@ -470,7 +470,7 @@ if analysis_report_file is not None:
 
         ###########################################################################################
         # First, filter the DataFrame based on Firebase:
-        dfa = dfa[~dfa["Form Record"].apply(lambda record: check_and_add_record(record))]
+        #dfa = dfa[~dfa["Form Record"].apply(lambda record: check_and_add_record(record))]
         ###########################################################################################
         
         selected_indices = [4, 5, 16, 19, 23, 27, 30, 34, 37, 41, 44, 48, 51, 55, 58, 62,65, 69, 72, 76, 79, 83, 86, 90, 93, 97, 100, 104, 107, 111, 114, 118, 121, 125, 128, 132, 135, 139, 143, 146, 147, 153, 154]
@@ -537,7 +537,7 @@ if analysis_report_file is not None:
         df_grouped = df_grouped[ordered_columns]
         
         # Display the final aggregated DataFrame in your Streamlit app
-        st.dataframe(df_grouped)
+        #st.dataframe(df_grouped)
 
         final_group_cols = ["Evaluator", "Evaluator Email"]
         
