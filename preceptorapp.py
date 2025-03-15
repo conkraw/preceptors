@@ -28,6 +28,14 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 st.set_page_config(layout="wide")
 
+def safe_check_and_add_record(record_id):
+    try:
+        return check_and_add_record(record_id)
+    except Exception as e:
+        st.error(f"Error processing record {record_id}: {e}")
+        return True  # You might choose to exclude this record or handle it differently
+
+
 # Define a function to group every two elements into a single name
 def group_names(name_str):
     if isinstance(name_str, str):
@@ -472,7 +480,7 @@ if analysis_report_file is not None:
 
         ###########################################################################################
         # First, filter the DataFrame based on Firebase:
-        dfa = dfa[~dfa["Form Record"].apply(lambda record: check_and_add_record(record))]
+        dfa = dfa[~dfa["Form Record"].apply(safe_check_and_add_record)]
         ###########################################################################################
         
         selected_indices = [4, 5, 16, 19, 23, 27, 30, 34, 37, 41, 44, 48, 51, 55, 58, 62,65, 69, 72, 76, 79, 83, 86, 90, 93, 97, 100, 104, 107, 111, 114, 118, 121, 125, 128, 132, 135, 139, 143, 146, 147, 153, 154]
