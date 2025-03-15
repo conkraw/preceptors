@@ -316,7 +316,7 @@ if redcapmetrics is not None:
             dfe = pd.read_excel(redcapmetrics)
         # Display the DataFrame in the app
         
-        st.dataframe(dfe)
+        #st.dataframe(dfe)
         
         dff = dfe 
         dfg = dfe 
@@ -407,18 +407,14 @@ if redcapmetrics is not None:
 
         #df_grouped['documentation_summary'] = "test"
         ######################################################################
-
         
         final_df = df_grouped[['corrected_preceptors', 'documentation_summary']]
-
 
         dfj = final_df
 
         df_list = [dfe, dff, dfg, dfh, dfi, dfj]
         df_final = reduce(lambda left, right: pd.merge(left, right, on='corrected_preceptors', how='outer'), df_list)
         df_final.rename(columns={'corrected_preceptors': 'Evaluator'}, inplace=True)
-        
-        st.dataframe(df_final)
         groupedx = df_final.reset_index()
         # Now, if you still need to set it as the index for further operations:
         groupedx = groupedx.set_index('Evaluator')
