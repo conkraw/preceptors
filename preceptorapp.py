@@ -289,7 +289,7 @@ db = firestore.client()
 st.title("Faculty Analysis Report & Evaluation Due Dates Upload")
 
 # Create two columns to display both upload buttons side by side
-col1, col2, col3 = st.columns(3)
+#col1, col2, col3 = st.columns(3)
 
 with col3:
     st.subheader("Redcap Metrics")
