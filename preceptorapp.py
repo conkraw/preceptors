@@ -737,7 +737,7 @@ if analysis_report_file is not None:
                 details_table.cell(2, 1).text = str(row['num_evaluations'])
                 
                 # Row 3: Number of Student Evaluations Completed by Evaluator
-                details_table.cell(3, 0).text = "Preceptor-Completed Student Evalulations (n):"
+                details_table.cell(3, 0).text = "Preceptor-Completed Student Evaluations (n):"
                 details_table.cell(3, 1).text = str(row['total_evaluations'])
                 
                 # Row 4: Percentage of Student Evaluations Completed within 14 days
@@ -911,6 +911,8 @@ if analysis_report_file is not None:
         
         with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zipf:
             # Loop through each evaluator in df_final
+            df_final = df_final.loc[df_final['num_evaluations'] >= 3]
+            
             for idx, row in df_final.iterrows():
                 # Create a new Word document for each evaluator
                 document = docx.Document()
