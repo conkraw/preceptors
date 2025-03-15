@@ -858,7 +858,7 @@ if analysis_report_file is not None:
                 
                 header_row = details_table.rows[0]
                 header_cells = header_row.cells
-                header_cells[0].text = "Assessment Metric"
+                header_cells[0].text = "Assessment Metric (Student Performance)"
                 header_cells[1].text = "Result"
 
                 # Shade the header cells a light gray
@@ -1001,7 +1001,7 @@ if analysis_report_file is not None:
                 details_table.cell(2, 1).text = str(row['num_evaluations'])
                 
                 # Row 3: Number of Student Evaluations Completed by Evaluator
-                details_table.cell(3, 0).text = "Preceptor-Completed Student Evalulations (n):"
+                details_table.cell(3, 0).text = "Preceptor-Completed Student Evaluations (n):"
                 details_table.cell(3, 1).text = str(row['total_evaluations'])
                 
                 # Row 4: Percentage of Student Evaluations Completed within 14 days
@@ -1122,7 +1122,7 @@ if analysis_report_file is not None:
                 
                 header_row = details_table.rows[0]
                 header_cells = header_row.cells
-                header_cells[0].text = "Assessment Metric"
+                header_cells[0].text = "Assessment Metric (Student Performance)"
                 header_cells[1].text = "Result"
 
                 # Shade the header cells a light gray
