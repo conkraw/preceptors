@@ -295,27 +295,32 @@ db = firestore.client()
 ########################################
 
 st.title("Faculty Analysis Report & Evaluation Due Dates Upload")
+st.subheader("Please Upload in order... ")
 
-# Create two columns to display both upload buttons side by side
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    st.subheader("Evaluation Due Dates")
-    st.markdown("[Student Performance Report](https://oasis.hersheymed.net/admin/course/e_manage/student_performance/setup_analysis_report.html)")
-    # File uploader for evaluation due dates (adjust allowed types as needed)
-    evaluation_due_dates_file = st.file_uploader("Upload Evaluation Due Dates", type=["csv", "xlsx", "pdf"])
-    
-with col2:
-    st.subheader("Setup Analysis Report")
-    # Embed the website so users can view it directly
-    st.markdown("[Faculty Evaluations](https://oasis.hersheymed.net/admin/course/e_manage/faculty/setup_analysis_report.html)")
-    analysis_report_file = st.file_uploader("Upload Analysis Report", type=["pdf", "docx", "csv"])
-
-with col3:
     st.subheader("Redcap Metrics")
     # Embed the website so users can view it directly
     st.markdown("[REDCAP Link Raw File](https://redcap.ctsi.psu.edu/redcap_v14.5.43/DataExport/index.php?pid=16813&report_id=61309)")
     redcapmetrics = st.file_uploader("Upload REDCAP Report", type=["pdf", "docx", "csv"])
+
+with col2:
+    st.subheader("Student Clinical Assessment Forms")
+    st.markdown("[Student Performance Report](https://oasis.hersheymed.net/admin/course/e_manage/student_performance/setup_analysis_report.html)")
+    # File uploader for evaluation due dates (adjust allowed types as needed)
+    evaluation_due_dates_file = st.file_uploader("Upload Evaluation Due Dates", type=["csv", "xlsx", "pdf"])
+
+with col3:
+    st.subheader("Student Evaluations of Preceptors")
+    # Embed the website so users can view it directly
+    st.markdown("[Faculty Evaluations](https://oasis.hersheymed.net/admin/course/e_manage/faculty/setup_analysis_report.html)")
+    analysis_report_file = st.file_uploader("Upload Analysis Report", type=["pdf", "docx", "csv"])
+    
+
+
+
+
     
 if redcapmetrics is not None:
     try:
@@ -413,9 +418,9 @@ if redcapmetrics is not None:
         df_grouped = df_exploded.groupby('corrected_preceptors')['combined_comments'].apply(lambda rows: ' '.join(rows)).reset_index(name='all_comments')
 
         #######################AI DOCUMENTATION SUMMARY#######################
-        #df_grouped['documentation_summary'] = df_grouped['all_comments'].apply(summarize_feedback)
+        df_grouped['documentation_summary'] = df_grouped['all_comments'].apply(summarize_feedback)
 
-        df_grouped['documentation_summary'] = "test"
+        #df_grouped['documentation_summary'] = "test"
         ######################################################################
         
         final_df = df_grouped[['corrected_preceptors', 'documentation_summary']]
@@ -582,11 +587,11 @@ if analysis_report_file is not None:
         df_final = df_grouped.groupby(final_group_cols, as_index=False).agg(agg_funcs)
         st.write("Preceptor Evaluation Pre AI")
         #############################################################################################################################
-        df_final["strengths_summary"] = "test"
-        df_final["improvement_summary"] = "test"
+        #df_final["strengths_summary"] = "test"
+        #df_final["improvement_summary"] = "test"
         
-        #df_final["strengths_summary"] = df_final.apply(lambda row: strengths(row["strengths_preceptor"], row["Evaluator"]), axis=1)
-        #df_final["improvement_summary"] = df_final.apply(lambda row: improvement(row["improvement_preceptor"], row["Evaluator"]), axis=1)
+        df_final["strengths_summary"] = df_final.apply(lambda row: strengths(row["strengths_preceptor"], row["Evaluator"]), axis=1)
+        df_final["improvement_summary"] = df_final.apply(lambda row: improvement(row["improvement_preceptor"], row["Evaluator"]), axis=1)
         #############################################################################################################################
         
         # Map the values to df_final
