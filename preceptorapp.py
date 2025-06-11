@@ -420,7 +420,7 @@ if redcapmetrics is not None:
         #######################AI DOCUMENTATION SUMMARY#######################
         #df_grouped['documentation_summary'] = df_grouped['all_comments'].apply(summarize_feedback)
 
-        df_grouped['documentation_summary'] = ""
+        df_grouped['documentation_summary'] = "test"
         ######################################################################
         
         final_df = df_grouped[['corrected_preceptors', 'documentation_summary']]
@@ -587,8 +587,8 @@ if analysis_report_file is not None:
         df_final = df_grouped.groupby(final_group_cols, as_index=False).agg(agg_funcs)
         st.write("Preceptor Evaluation Pre AI")
         ###############################################################PRECEPTOR EVALUATION AI##############################################################
-        df_final["strengths_summary"] = ""
-        df_final["improvement_summary"] = ""
+        df_final["strengths_summary"] = "test"
+        df_final["improvement_summary"] = "test"
         
         #df_final["strengths_summary"] = df_final.apply(lambda row: strengths(row["strengths_preceptor"], row["Evaluator"]), axis=1)
         #df_final["improvement_summary"] = df_final.apply(lambda row: improvement(row["improvement_preceptor"], row["Evaluator"]), axis=1)
