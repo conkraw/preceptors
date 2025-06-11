@@ -492,6 +492,9 @@ if analysis_report_file is not None:
         dfa = dfa.iloc[:, selected_indices]
 
         df = dfa.copy()
+        st.dataframe(dfa) 
+        st.stop()
+        
         rename_mapping = {}
         # Loop through columns to find ones with the pattern "<number> Question"
         for col in df.columns:
