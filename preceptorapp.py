@@ -307,14 +307,14 @@ with col1:
 
 with col2:
     st.subheader("Student Clinical Assessment Forms")
-    st.markdown("[Student Performance Report](https://oasis.hersheymed.net/admin/course/e_manage/student_performance/setup_analysis_report.html)")
+    st.markdown("[Student Performance Report](https://oasis.pennstatehealth.net/admin/course/e_manage/student_performance/setup_analysis_report.html)")
     # File uploader for evaluation due dates (adjust allowed types as needed)
     evaluation_due_dates_file = st.file_uploader("Upload Evaluation Due Dates", type=["csv", "xlsx", "pdf"])
 
 with col3:
     st.subheader("Student Evaluations of Preceptors")
     # Embed the website so users can view it directly
-    st.markdown("[Faculty Evaluations](https://oasis.hersheymed.net/admin/course/e_manage/faculty/setup_analysis_report.html)")
+    st.markdown("[Faculty Evaluations](https://oasis.pennstatehealth.net/admin/course/e_manage/faculty/setup_analysis_report.html)")
     analysis_report_file = st.file_uploader("Upload Analysis Report", type=["pdf", "docx", "csv"])
     
 
