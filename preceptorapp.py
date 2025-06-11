@@ -483,6 +483,10 @@ if analysis_report_file is not None:
             dfa = pd.read_excel(analysis_report_file)
         # Display the DataFrame in the app
 
+        st.write("raw dfa.shape:", dfa.shape)
+        st.write(dfa.head(5))
+        st.write("columns:", list(dfa.columns))
+
         ###########################################################################################
         # First, filter the DataFrame based on Firebase:
         dfa = dfa[~dfa["Form Record"].apply(safe_check_and_add_record)]
