@@ -659,6 +659,8 @@ if analysis_report_file is not None:
                         sel_row["Evaluator"],
                     )
                     st.session_state["spotlight_reason"] = summary
+
+                    st.session_state["spotlight_evaluator"] = sel_row["Evaluator"]
         
                     # 3) Immediately write the record to Firebase
                     record = {
