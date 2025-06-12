@@ -629,7 +629,6 @@ if analysis_report_file is not None:
         # 3. Show whichever eligible_df is current
         
         st.dataframe(eligible_df)
-        st.stop()
         
         ###########################################################################################
         # Retrieve already spotlighted evaluators from Firebase.
