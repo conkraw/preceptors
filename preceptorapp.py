@@ -658,7 +658,9 @@ if analysis_report_file is not None:
             # --- STEP 2: Randomly Select a Spotlight Candidate ---#
             #selected_candidate = eligible_df.sample(n=1).iloc[0]  #
             ########################################################
-
+            
+            df_final = st.session_state["df_final_summarized"]
+            
             # 0) Initialize our session‑state defaults exactly once
             if "_prev_preceptor" not in st.session_state:
                 st.session_state["_prev_preceptor"] = None
@@ -682,20 +684,25 @@ if analysis_report_file is not None:
                         sel["strengths_preceptor"],
                         sel["Evaluator"],
                     )
-                st.success("Done!")
+                st.success("Spotlight Ready!")
             
             # 4) Display only if we have text
             if st.session_state["spotlight_reason"]:
-                st.markdown(st.session_state["spotlight_reason"])
-
-
-            ###########################################################################################
+                # 1) Pull your DF from session_state
+                df_final = st.session_state["df_final_summarized"]
             
-            # Add the spotlight summary to the DataFrame (if desired)
-            df_final.loc[df_final["Evaluator"] == selected_candidate["Evaluator"], "spotlight_summary"] = spotlight_reason
-            st.dataframe(df_final)
-            df_spotlight = df_final[df_final["Evaluator"] == selected_candidate["Evaluator"]]
-
+                # 2) Create a boolean mask for the selected preceptor
+                mask = df_final["Evaluator"] == st.session_state["_prev_preceptor"]
+            
+                # 3) Assign the session_state text into a new column
+                df_final.loc[mask, "spotlight_summary"] = st.session_state["spotlight_reason"]
+            
+                # 4) Update your cached DF so later widgets (or downloads) see it too
+                st.session_state["df_final_summarized"] = df_final
+            
+                # 5) Extract just that row & display
+                df_spotlight = df_final[mask]
+                st.dataframe(df_spotlight)
 
              
             # --- STEP 3: Upload the Spotlight Record to Firebase ---
