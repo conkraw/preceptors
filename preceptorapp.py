@@ -671,11 +671,12 @@ if analysis_report_file is not None:
             # 3) Button to trigger AI
             if st.button("🖋️ Generate Spotlight Summary"):
                 with st.spinner("Generating spotlight summary…"):
-                    sel = eligible_df[eligible_df["Evaluator"] == selected_preceptor].iloc[0]
+                    sel_row = eligible_df[eligible_df["Evaluator"] == selected_preceptor].iloc[0]
                     st.session_state["spotlight_reason"] = generate_spotlight_summary(
-                        sel["strengths_preceptor"],
-                        sel["Evaluator"],
+                        sel_row["strengths_preceptor"],
+                        sel_row["Evaluator"],
                     )
+                    st.session_state["spotlight_row"] = sel_row.to_dict()
                 st.success("Spotlight Ready!")
             
             # 4) Display only if we have text
@@ -714,8 +715,10 @@ if analysis_report_file is not None:
                 }
 
             ###########################################################################################
-            db.collection("spotlight").document(sel_row["Evaluator"]).set(record)
-            st.success(f"Spotlight uploaded for {sel_row['Evaluator']}")
+            if "spotlight_row" in st.session_state:
+                row = st.session_state["spotlight_row"]
+                db.collection("spotlight").document(row["Evaluator"]).set({"Evaluator": row["Evaluator"])
+                st.success(f"Spotlight uploaded for {row["Evaluator"]}")
             ###########################################################################################
 
             # --- STEP 4: Create a Word Document for the Spotlight Candidate ---
