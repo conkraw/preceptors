@@ -616,17 +616,21 @@ if analysis_report_file is not None:
         #        df_final = pd.read_excel(uploaded)
 
 
-        with st.spinner("Summarizing strengths..."):
-            df_final["strengths_summary"] = df_final.apply(lambda row: strengths(row["strengths_preceptor"], row["Evaluator"]), axis=1)
-        st.success("Strengths summary completed.")
+        if "df_final_summarized" not in st.session_state:
+            with st.spinner("Summarizing strengths…"):
+                df_final["strengths_summary"] = df_final.apply(
+                    lambda row: strengths(row["strengths_preceptor"], row["Evaluator"]), axis=1
+                )
+            with st.spinner("Summarizing improvement…"):
+                df_final["improvement_summary"] = df_final.apply(
+                    lambda row: improvement(row["improvement_preceptor"], row["Evaluator"]), axis=1
+                )
+            with st.spinner("Summarizing documentation…"):
+                df_final["documentation_summary"] = df_final["documentation_summary"].apply(summarize_feedback)
+            st.session_state["df_final_summarized"] = df_final.copy()
         
-        with st.spinner("Summarizing areas for improvement..."):
-            df_final["improvement_summary"] = df_final.apply(lambda row: improvement(row["improvement_preceptor"], row["Evaluator"]), axis=1)
-        st.success("Improvement summary completed.")
-        
-        with st.spinner("Summarizing documentation feedback..."):
-            df_final["documentation_summary"] = df_final["documentation_summary"].apply(summarize_feedback)
-        st.success("Documentation summary completed.")
+        # pull the cached one
+        df_final = st.session_state["df_final_summarized"]
                 
         # --- STEP 1: Identify Eligible Preceptors ---
         # Define the known text fields to identify numeric score columns.
