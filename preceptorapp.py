@@ -483,6 +483,8 @@ if analysis_report_file is not None:
             dfa = pd.read_excel(analysis_report_file)
         # Display the DataFrame in the app
 
+        st.dataframe(dfa) 
+        st.stop()
         ###########################################################################################
         # First, filter the DataFrame based on Firebase:
         dfa = dfa[~dfa["Form Record"].apply(safe_check_and_add_record)]
@@ -492,8 +494,7 @@ if analysis_report_file is not None:
         dfa = dfa.iloc[:, selected_indices]
 
         df = dfa.copy()
-        st.dataframe(df) 
-        st.stop()
+
         
         rename_mapping = {}
         # Loop through columns to find ones with the pattern "<number> Question"
