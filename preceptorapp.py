@@ -607,14 +607,6 @@ if analysis_report_file is not None:
         
         # Display the final aggregated DataFrame with the count of evaluations
         st.dataframe(df_final)
-        
-        #uploaded = st.file_uploader("Upload a new eligible DataFrame (CSV or XLSX) to replace the default",type=["csv", "xlsx"])
-        #if uploaded is not None:
-        #    if uploaded.name.lower().endswith(".csv"):
-        #        df_final = pd.read_csv(uploaded)
-        #    else:
-        #        df_final = pd.read_excel(uploaded)
-
 
         if "df_final_summarized" not in st.session_state:
             with st.spinner("Summarizing strengths…"):
@@ -975,8 +967,6 @@ if analysis_report_file is not None:
                 doc_buffer.seek(0)
 
                 spotlight_doc_content = doc_buffer.read()
-            
-            #st.download_button(label="Download Spotlight Word Document", data=doc_buffer, file_name=f"{row['Evaluator']}_spotlight.docx", mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",key="download_spotlight_doc")
 
         zip_buffer = io.BytesIO()
         
