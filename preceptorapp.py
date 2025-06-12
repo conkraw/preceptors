@@ -420,7 +420,7 @@ if redcapmetrics is not None:
         #######################AI DOCUMENTATION SUMMARY#######################
         #df_grouped['documentation_summary'] = df_grouped['all_comments'].apply(summarize_feedback)
 
-        df_grouped['documentation_summary'] = "test"
+        df_grouped['documentation_summary'] = df_grouped['all_comments'].astype(str)
         ######################################################################
         
         final_df = df_grouped[['corrected_preceptors', 'documentation_summary']]
