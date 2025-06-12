@@ -1245,11 +1245,12 @@ if analysis_report_file is not None:
                 filename = f"{safe_name}.docx"
                 
                 # Write the Word file to the zip archive
-                zipf.writestr(filename, doc_buffer.read())
+                #zipf.writestr(filename, doc_buffer.read())
+                zipf.writestr(filename, doc_buffer.getvalue())
         
         # Finalize the zip file and get its binary content
         zip_buffer.seek(0)
-        zip_data = zip_buffer.getvalue()
+        #zip_data = zip_buffer.getvalue()
         
         # Provide a download button for the zip file (Streamlit)
         st.download_button(label="Download Evaluator Word Files",data=zip_data,file_name="evaluators.zip",mime="application/zip",key="download_evaluators_zip")
