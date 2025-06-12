@@ -676,7 +676,7 @@ if analysis_report_file is not None:
                         sel_row["strengths_preceptor"],
                         sel_row["Evaluator"],
                     )
-                    st.session_state["spotlight_row"] = sel_row.to_dict()
+                    st.session_state["df_spotlight"] = pd.DataFrame([sel_row])
                 st.success("Spotlight Ready!")
             
             # 4) Display only if we have text
@@ -720,258 +720,259 @@ if analysis_report_file is not None:
                 db.collection("spotlight").document(row["Evaluator"]).set({"Evaluator": row["Evaluator"]})
                 st.success(f"Spotlight uploaded for {row["Evaluator"]}")
             ###########################################################################################
-
+            if "df_spotlight" in st.session_state:
+                df_spotlight = st.session_state["df_spotlight"]
             # --- STEP 4: Create a Word Document for the Spotlight Candidate ---
-            for idx, row in df_spotlight.iterrows():
-                document = docx.Document()
-                paragraph = document.add_paragraph("PRECEPTOR SPOTLIGHT SUMMARY")
+                for idx, row in df_spotlight.iterrows():
+                    document = docx.Document()
+                    paragraph = document.add_paragraph("PRECEPTOR SPOTLIGHT SUMMARY")
+                        
+                    # Format the run
+                    run = paragraph.runs[0]
+                    run.bold = True
+                    run.underline = True
+                        
+                    # Center the paragraph
+                    paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                    document.add_paragraph("")
+        
+                    style = document.styles['Normal']
+                    style.font.size = Pt(9)
                     
-                # Format the run
-                run = paragraph.runs[0]
-                run.bold = True
-                run.underline = True
+                    document.styles['Normal'].paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
+                    document.styles['Normal'].paragraph_format.space_before = Pt(0)
+                    document.styles['Normal'].paragraph_format.space_after = Pt(0)
+        
+                    # Create a table with 1 row and 2 columns and a grid style
+                    table = document.add_table(rows=1, cols=2)
+                    table.style = 'Table Grid'
                     
-                # Center the paragraph
-                paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
-                document.add_paragraph("")
-    
-                style = document.styles['Normal']
-                style.font.size = Pt(9)
-                
-                document.styles['Normal'].paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
-                document.styles['Normal'].paragraph_format.space_before = Pt(0)
-                document.styles['Normal'].paragraph_format.space_after = Pt(0)
-    
-                # Create a table with 1 row and 2 columns and a grid style
-                table = document.add_table(rows=1, cols=2)
-                table.style = 'Table Grid'
-                
-                # Optionally disable autofit if available (not always effective)
-                # table.autofit = False
-                
-                # Set each column's cell widths individually:
-                for cell in table.columns[0].cells:
-                    set_cell_width(cell, 3)  # 3.45 inches for first column
-                for cell in table.columns[1].cells:
-                    set_cell_width(cell, 3.14)  # 2.69 inches for second column
-                
-                # Populate the cells with your content:
-                cell_label = table.rows[0].cells[0]
-                cell_value = table.rows[0].cells[1]
-                
-                # Add bolded "Preceptor:" in the first cell
-                p_label = cell_label.paragraphs[0]
-                run_label = p_label.add_run("Preceptor: ")
-                run_label.bold = True
-                
-                # Add the preceptor name in the second cell (assuming row['Evaluator'] holds the name)
-                p_value = cell_value.paragraphs[0]
-                p_value.add_run(row['Evaluator'])
-    
-                shade_cell(cell_label, "ADD8E6")
-                shade_cell(cell_value, "ADD8E6")
-    
-                document.add_paragraph("")
-    
-                # Create a 6-row, 2-column table
-                details_table = document.add_table(rows=7, cols=2)
-                details_table.style = 'Table Grid'  # Or use your custom border logic
-                
-                # Define column widths if desired
-                col_width_left = Inches(3.0)
-                col_width_right = Inches(3.14)
-                
-                header_row = details_table.rows[0]
-                header_cells = header_row.cells
-                header_cells[0].text = "Evaluation Metric"
-                header_cells[1].text = "Result"
-    
-                # Shade the header cells a light gray
-                shade_cell(header_cells[0], "D3D3D3")  # Light gray
-                shade_cell(header_cells[1], "D3D3D3")  # Light gray
-                
-                # Bold the header text
-                for cell in header_cells:
-                    for paragraph in cell.paragraphs:
-                        for run in paragraph.runs:
-                            run.font.bold = True
-                
-                                # Row 1: Rotation Periods
-                details_table.cell(1, 0).text = "Rotation Period (s):"
-                details_table.cell(1, 1).text = str(row['Rotation Period'])
-
-                # Row 2: Number of Evaluations
-                details_table.cell(2, 0).text = "Student-Completed Preceptor Evaluations (n):"
-                details_table.cell(2, 1).text = str(row['num_evaluations'])
-                
-                # Row 3: Number of Student Evaluations Completed by Evaluator
-                details_table.cell(3, 0).text = "Preceptor-Completed Student Evaluations (n):"
-                details_table.cell(3, 1).text = str(row['total_evaluations'])
-                
-                # Row 4: Percentage of Student Evaluations Completed within 14 days
-                details_table.cell(4, 0).text = "On-Time Completion Rate (%):"
-                details_table.cell(4, 1).text = f"{row['percentage_on_time']:.1f}%"
-
-                # Row 5: Percentage of Student Evaluations Completed within 14 days
-                details_table.cell(5, 0).text = "Number of Students Assigned to Preceptor:"
-                details_table.cell(5, 1).text = str(row['student_assignments'])
-
-                # Row 6: Percentage of Student Evaluations Completed within 14 days
-                details_table.cell(6, 0).text = "Number of Times Preceptor Matched to Student:"
-                details_table.cell(6, 1).text = str(row['student_matches'])
-
-
-                # Optionally set column widths
-                for row_idx in range(4):
-                    details_table.cell(row_idx, 0).width = col_width_left
-                    details_table.cell(row_idx, 1).width = col_width_right
-    
-                # Write evaluation question scores.
-                # Assume that the remaining numeric columns (not part of the known text fields) are the evaluation questions.
-                known_cols = {
-                    "Evaluator", "Evaluator Email", "Rotation Period", "strengths_preceptor",
-                    "improvement_preceptor", "strengths_summary", "improvement_summary",
-                    "num_evaluations", "Form Record", "total_evaluations", "percentage_on_time", "student_matches", "student_assignments", "average_prac_score", "average_doc_score", "average_nbme"
-                }
-                document.add_paragraph("")
-                
-                # Define a standard border style
-                border_style = {"sz": "4", "val": "single", "color": "000000"}
-                
-                # Create the table (1 header row, 2 columns)
-                table = document.add_table(rows=1, cols=2)
-                # Do NOT set table.style = 'Table Grid' because we want to manually control borders
-                
-                # Define column widths
-                evaluator_col_width = Inches(6.45)
-                score_col_width = Inches(0.63)
-                
-                # 1) Configure the header row
-                header_row = table.rows[0]
-                header_cells = header_row.cells
-                header_cells[0].text = "Evaluation Question"
-                header_cells[1].text = "Score"
-
-                shade_cell(header_cells[0], "D3D3D3")  # Light gray
-                shade_cell(header_cells[1], "D3D3D3")  # Light gray
-                
-                # Bold the header text
-                for cell in header_cells:
-                    for paragraph in cell.paragraphs:
-                        for run in paragraph.runs:
-                            run.font.bold = True
-                            run.font.size = Pt(9) 
-                
-                # Set the header cell widths
-                header_cells[0].width = evaluator_col_width
-                header_cells[1].width = score_col_width
-                
-                # For the header row:
-                # - keep top/bottom/left/right, but remove the vertical line in the middle
-                set_cell_border(header_cells[0],
-                    top=border_style,
-                    bottom=border_style,
-                    left=border_style
-                    # no right border here => removes middle line
-                )
-                set_cell_border(header_cells[1],
-                    top=border_style,
-                    bottom=border_style,
-                    right=border_style
-                    # no left border => removes middle line
-                )
-                
-                # 2) Add data rows
-                # Suppose 'question_columns' is a list of the columns that hold numeric data
-                question_columns = [col for col in df_final.columns 
-                                    if col not in known_cols 
-                                    and pd.api.types.is_numeric_dtype(df_final[col])]
-                
-                for i, col in enumerate(question_columns):
-                    row_cells = table.add_row().cells
-                    row_cells[0].text = col.rstrip('.')  # question
-                    row_cells[1].text = f"{row[col]:.2f}"  # average score
+                    # Optionally disable autofit if available (not always effective)
+                    # table.autofit = False
                     
-                    # Set widths
-                    row_cells[0].width = evaluator_col_width
-                    row_cells[1].width = score_col_width
-
-                    for cell in row_cells:
+                    # Set each column's cell widths individually:
+                    for cell in table.columns[0].cells:
+                        set_cell_width(cell, 3)  # 3.45 inches for first column
+                    for cell in table.columns[1].cells:
+                        set_cell_width(cell, 3.14)  # 2.69 inches for second column
+                    
+                    # Populate the cells with your content:
+                    cell_label = table.rows[0].cells[0]
+                    cell_value = table.rows[0].cells[1]
+                    
+                    # Add bolded "Preceptor:" in the first cell
+                    p_label = cell_label.paragraphs[0]
+                    run_label = p_label.add_run("Preceptor: ")
+                    run_label.bold = True
+                    
+                    # Add the preceptor name in the second cell (assuming row['Evaluator'] holds the name)
+                    p_value = cell_value.paragraphs[0]
+                    p_value.add_run(row['Evaluator'])
+        
+                    shade_cell(cell_label, "ADD8E6")
+                    shade_cell(cell_value, "ADD8E6")
+        
+                    document.add_paragraph("")
+        
+                    # Create a 6-row, 2-column table
+                    details_table = document.add_table(rows=7, cols=2)
+                    details_table.style = 'Table Grid'  # Or use your custom border logic
+                    
+                    # Define column widths if desired
+                    col_width_left = Inches(3.0)
+                    col_width_right = Inches(3.14)
+                    
+                    header_row = details_table.rows[0]
+                    header_cells = header_row.cells
+                    header_cells[0].text = "Evaluation Metric"
+                    header_cells[1].text = "Result"
+        
+                    # Shade the header cells a light gray
+                    shade_cell(header_cells[0], "D3D3D3")  # Light gray
+                    shade_cell(header_cells[1], "D3D3D3")  # Light gray
+                    
+                    # Bold the header text
+                    for cell in header_cells:
                         for paragraph in cell.paragraphs:
                             for run in paragraph.runs:
-                                run.font.size = Pt(9)
-                                
-                    # For each data row: remove top/bottom to avoid horizontal lines between rows
-                    # Keep left and right borders. 
-                    # We'll add a bottom border only if it's the last row, to "close" the table.
-                    is_last_row = (i == len(question_columns) - 1)
+                                run.font.bold = True
                     
-                    set_cell_border(row_cells[0],
-                        left=border_style,
-                        bottom=border_style if is_last_row else None
+                                    # Row 1: Rotation Periods
+                    details_table.cell(1, 0).text = "Rotation Period (s):"
+                    details_table.cell(1, 1).text = str(row['Rotation Period'])
+    
+                    # Row 2: Number of Evaluations
+                    details_table.cell(2, 0).text = "Student-Completed Preceptor Evaluations (n):"
+                    details_table.cell(2, 1).text = str(row['num_evaluations'])
+                    
+                    # Row 3: Number of Student Evaluations Completed by Evaluator
+                    details_table.cell(3, 0).text = "Preceptor-Completed Student Evaluations (n):"
+                    details_table.cell(3, 1).text = str(row['total_evaluations'])
+                    
+                    # Row 4: Percentage of Student Evaluations Completed within 14 days
+                    details_table.cell(4, 0).text = "On-Time Completion Rate (%):"
+                    details_table.cell(4, 1).text = f"{row['percentage_on_time']:.1f}%"
+    
+                    # Row 5: Percentage of Student Evaluations Completed within 14 days
+                    details_table.cell(5, 0).text = "Number of Students Assigned to Preceptor:"
+                    details_table.cell(5, 1).text = str(row['student_assignments'])
+    
+                    # Row 6: Percentage of Student Evaluations Completed within 14 days
+                    details_table.cell(6, 0).text = "Number of Times Preceptor Matched to Student:"
+                    details_table.cell(6, 1).text = str(row['student_matches'])
+    
+    
+                    # Optionally set column widths
+                    for row_idx in range(4):
+                        details_table.cell(row_idx, 0).width = col_width_left
+                        details_table.cell(row_idx, 1).width = col_width_right
+        
+                    # Write evaluation question scores.
+                    # Assume that the remaining numeric columns (not part of the known text fields) are the evaluation questions.
+                    known_cols = {
+                        "Evaluator", "Evaluator Email", "Rotation Period", "strengths_preceptor",
+                        "improvement_preceptor", "strengths_summary", "improvement_summary",
+                        "num_evaluations", "Form Record", "total_evaluations", "percentage_on_time", "student_matches", "student_assignments", "average_prac_score", "average_doc_score", "average_nbme"
+                    }
+                    document.add_paragraph("")
+                    
+                    # Define a standard border style
+                    border_style = {"sz": "4", "val": "single", "color": "000000"}
+                    
+                    # Create the table (1 header row, 2 columns)
+                    table = document.add_table(rows=1, cols=2)
+                    # Do NOT set table.style = 'Table Grid' because we want to manually control borders
+                    
+                    # Define column widths
+                    evaluator_col_width = Inches(6.45)
+                    score_col_width = Inches(0.63)
+                    
+                    # 1) Configure the header row
+                    header_row = table.rows[0]
+                    header_cells = header_row.cells
+                    header_cells[0].text = "Evaluation Question"
+                    header_cells[1].text = "Score"
+    
+                    shade_cell(header_cells[0], "D3D3D3")  # Light gray
+                    shade_cell(header_cells[1], "D3D3D3")  # Light gray
+                    
+                    # Bold the header text
+                    for cell in header_cells:
+                        for paragraph in cell.paragraphs:
+                            for run in paragraph.runs:
+                                run.font.bold = True
+                                run.font.size = Pt(9) 
+                    
+                    # Set the header cell widths
+                    header_cells[0].width = evaluator_col_width
+                    header_cells[1].width = score_col_width
+                    
+                    # For the header row:
+                    # - keep top/bottom/left/right, but remove the vertical line in the middle
+                    set_cell_border(header_cells[0],
+                        top=border_style,
+                        bottom=border_style,
+                        left=border_style
+                        # no right border here => removes middle line
                     )
-                    set_cell_border(row_cells[1],
-                        right=border_style,
-                        bottom=border_style if is_last_row else None
+                    set_cell_border(header_cells[1],
+                        top=border_style,
+                        bottom=border_style,
+                        right=border_style
+                        # no left border => removes middle line
                     )
-                
-                document.add_paragraph("")
-                # Create a 3-row, 2-column table
-                details_table = document.add_table(rows=4, cols=2)
-                details_table.style = 'Table Grid'  # Or use your custom border logic
-                
-                # Define column widths if desired
-                col_width_left = Inches(3.0)
-                col_width_right = Inches(3.14)
-                
-                header_row = details_table.rows[0]
-                header_cells = header_row.cells
-                header_cells[0].text = "Assessment Metric (Student Performance)"
-                header_cells[1].text = "Result"
-
-                # Shade the header cells a light gray
-                shade_cell(header_cells[0], "D3D3D3")  # Light gray
-                shade_cell(header_cells[1], "D3D3D3")  # Light gray
-                
-                # Bold the header text
-                for cell in header_cells:
-                    for paragraph in cell.paragraphs:
-                        for run in paragraph.runs:
-                            run.font.bold = True
-                
-                # Row 4: Percentage of Student Evaluations Completed within 14 days
-                details_table.cell(1, 0).text = "Practical Examination Score Average(%):"
-                details_table.cell(1, 1).text = f"{row['average_prac_score']:.1f}%"
-
-                # Row 5: Percentage of Student Evaluations Completed within 14 days
-                details_table.cell(2, 0).text = "Documentation Score Average (%)"
-                details_table.cell(2, 1).text = f"{row['average_doc_score']:.1f}%"
-
-                # Row 6: Percentage of Student Evaluations Completed within 14 days
-                details_table.cell(3, 0).text = "NBME Shelf Score Average (%)"
-                details_table.cell(3, 1).text = f"{row['average_nbme']:.1f}%"
-
-
-                # Optionally set column widths
-                for row_idx in range(4):
-                    details_table.cell(row_idx, 0).width = col_width_left
-                    details_table.cell(row_idx, 1).width = col_width_right
-                
-                document.add_paragraph("")
-                create_comment_table(document, "Student Documentation Comments", row["documentation_summary"], 6.14)
-                document.add_paragraph("")
-                create_comment_table(document, "Strengths Comments", row["strengths_preceptor"], 6.14)
-                document.add_paragraph("")
-                create_comment_table(document, "Opportunities for Improvement Comments", row["improvement_preceptor"],6.14)
-                document.add_paragraph("")
-                create_comment_table(document, "Spotlight Summary", st.session_state["spotlight_reason"],6.14)
-                
-                # --- STEP 5: Provide a Download Button for the Word Document ---
-                doc_buffer = io.BytesIO()
-                document.save(doc_buffer)
-                doc_buffer.seek(0)
-
-                spotlight_doc_content = doc_buffer.read()
+                    
+                    # 2) Add data rows
+                    # Suppose 'question_columns' is a list of the columns that hold numeric data
+                    question_columns = [col for col in df_final.columns 
+                                        if col not in known_cols 
+                                        and pd.api.types.is_numeric_dtype(df_final[col])]
+                    
+                    for i, col in enumerate(question_columns):
+                        row_cells = table.add_row().cells
+                        row_cells[0].text = col.rstrip('.')  # question
+                        row_cells[1].text = f"{row[col]:.2f}"  # average score
+                        
+                        # Set widths
+                        row_cells[0].width = evaluator_col_width
+                        row_cells[1].width = score_col_width
+    
+                        for cell in row_cells:
+                            for paragraph in cell.paragraphs:
+                                for run in paragraph.runs:
+                                    run.font.size = Pt(9)
+                                    
+                        # For each data row: remove top/bottom to avoid horizontal lines between rows
+                        # Keep left and right borders. 
+                        # We'll add a bottom border only if it's the last row, to "close" the table.
+                        is_last_row = (i == len(question_columns) - 1)
+                        
+                        set_cell_border(row_cells[0],
+                            left=border_style,
+                            bottom=border_style if is_last_row else None
+                        )
+                        set_cell_border(row_cells[1],
+                            right=border_style,
+                            bottom=border_style if is_last_row else None
+                        )
+                    
+                    document.add_paragraph("")
+                    # Create a 3-row, 2-column table
+                    details_table = document.add_table(rows=4, cols=2)
+                    details_table.style = 'Table Grid'  # Or use your custom border logic
+                    
+                    # Define column widths if desired
+                    col_width_left = Inches(3.0)
+                    col_width_right = Inches(3.14)
+                    
+                    header_row = details_table.rows[0]
+                    header_cells = header_row.cells
+                    header_cells[0].text = "Assessment Metric (Student Performance)"
+                    header_cells[1].text = "Result"
+    
+                    # Shade the header cells a light gray
+                    shade_cell(header_cells[0], "D3D3D3")  # Light gray
+                    shade_cell(header_cells[1], "D3D3D3")  # Light gray
+                    
+                    # Bold the header text
+                    for cell in header_cells:
+                        for paragraph in cell.paragraphs:
+                            for run in paragraph.runs:
+                                run.font.bold = True
+                    
+                    # Row 4: Percentage of Student Evaluations Completed within 14 days
+                    details_table.cell(1, 0).text = "Practical Examination Score Average(%):"
+                    details_table.cell(1, 1).text = f"{row['average_prac_score']:.1f}%"
+    
+                    # Row 5: Percentage of Student Evaluations Completed within 14 days
+                    details_table.cell(2, 0).text = "Documentation Score Average (%)"
+                    details_table.cell(2, 1).text = f"{row['average_doc_score']:.1f}%"
+    
+                    # Row 6: Percentage of Student Evaluations Completed within 14 days
+                    details_table.cell(3, 0).text = "NBME Shelf Score Average (%)"
+                    details_table.cell(3, 1).text = f"{row['average_nbme']:.1f}%"
+    
+    
+                    # Optionally set column widths
+                    for row_idx in range(4):
+                        details_table.cell(row_idx, 0).width = col_width_left
+                        details_table.cell(row_idx, 1).width = col_width_right
+                    
+                    document.add_paragraph("")
+                    create_comment_table(document, "Student Documentation Comments", row["documentation_summary"], 6.14)
+                    document.add_paragraph("")
+                    create_comment_table(document, "Strengths Comments", row["strengths_preceptor"], 6.14)
+                    document.add_paragraph("")
+                    create_comment_table(document, "Opportunities for Improvement Comments", row["improvement_preceptor"],6.14)
+                    document.add_paragraph("")
+                    create_comment_table(document, "Spotlight Summary", st.session_state["spotlight_reason"],6.14)
+                    
+                    # --- STEP 5: Provide a Download Button for the Word Document ---
+                    doc_buffer = io.BytesIO()
+                    document.save(doc_buffer)
+                    doc_buffer.seek(0)
+    
+                    spotlight_doc_content = doc_buffer.read()
 
         zip_buffer = io.BytesIO()
         
