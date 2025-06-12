@@ -332,9 +332,6 @@ if redcapmetrics is not None:
             dfe = pd.read_csv(redcapmetrics)
         elif redcapmetrics.name.endswith("xlsx"):
             dfe = pd.read_excel(redcapmetrics)
-        # Display the DataFrame in the app
-        
-        #st.dataframe(dfe)
         
         dff = dfe 
         dfg = dfe 
@@ -467,7 +464,7 @@ if evaluation_due_dates_file is not None:
         # Calculate the percentage of on-time evaluations per evaluator
         grouped['percentage_on_time'] = ((grouped['on_time_evaluations'] / grouped['total_evaluations']) * 100).round(1)
 
-        st.dataframe(grouped)
+        #st.dataframe(grouped)
         grouped = grouped.reset_index()
         # Now, if you still need to set it as the index for further operations:
         grouped = grouped.set_index('Evaluator')
@@ -609,7 +606,7 @@ if analysis_report_file is not None:
         df_final['documentation_summary'] = df_final['Evaluator'].map(groupedx['documentation_summary'])
         
         # Display the final aggregated DataFrame with the count of evaluations
-        st.dataframe(df_final)
+        #st.dataframe(df_final)
 
         if "df_final_summarized" not in st.session_state:
             with st.spinner("Summarizing strengths…"):
