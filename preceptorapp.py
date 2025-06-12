@@ -686,8 +686,10 @@ if analysis_report_file is not None:
                 # 2) Create a boolean mask for the selected preceptor
                 mask = df_final["Evaluator"] == st.session_state["_prev_preceptor"]
 
-                row = df_final.loc[mask].iloc[0]
-            
+                #row = df_final.loc[mask].iloc[0]
+
+                sel_row = df_final.loc[mask].iloc[0]
+
                 # 3) Assign the session_state text into a new column
                 df_final.loc[mask, "spotlight_summary"] = st.session_state["spotlight_reason"]
             
@@ -701,19 +703,19 @@ if analysis_report_file is not None:
                 # --- STEP 3: Upload the Spotlight Record to Firebase ---
                 # Use the evaluator's name as the document ID.
                 record = {
-                    "Evaluator": row["Evaluator"],
-                    "Evaluator Email": row["Evaluator Email"],
-                    "Form Record": str(row["Form Record"]),
+                    "Evaluator": sel_row["Evaluator"],
+                    "Evaluator Email": sel_row["Evaluator Email"],
+                    "Form Record": str(sel_row["Form Record"]),
                     "spotlight_summary": st.session_state["spotlight_reason"],
-                    "Rotation Period": row["Rotation Period"],
-                    "num_evaluations": int(row["num_evaluations"]),
-                    "strengths_preceptor": row["strengths_preceptor"],
-                    "improvement_preceptor": row["improvement_preceptor"],
+                    "Rotation Period": sel_row["Rotation Period"],
+                    "num_evaluations": int(sel_row["num_evaluations"]),
+                    "strengths_preceptor": sel_row["strengths_preceptor"],
+                    "improvement_preceptor": sel_row["improvement_preceptor"],
                 }
 
             ###########################################################################################
-            db.collection("spotlight").document(row["Evaluator"]).set(record)
-            st.success(f"Spotlight uploaded for {row['Evaluator']}")
+            db.collection("spotlight").document(sel_row["Evaluator"]).set(record)
+            st.success(f"Spotlight uploaded for {sel_row['Evaluator']}")
             ###########################################################################################
 
             # --- STEP 4: Create a Word Document for the Spotlight Candidate ---
