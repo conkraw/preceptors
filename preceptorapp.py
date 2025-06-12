@@ -650,8 +650,17 @@ if analysis_report_file is not None:
         if eligible_df.empty:
             st.info("No eligible preceptors found for the spotlight this month.")
         else:
-            # --- STEP 2: Randomly Select a Spotlight Candidate ---
-            selected_candidate = eligible_df.sample(n=1).iloc[0]
+            ########################################################
+            # --- STEP 2: Randomly Select a Spotlight Candidate ---#
+            #selected_candidate = eligible_df.sample(n=1).iloc[0]  #
+            ########################################################
+
+            # Let user select from eligible preceptors
+            preceptor_list = eligible_df["Evaluator"].unique()
+            selected_preceptor = st.selectbox("Select a preceptor to spotlight:", preceptor_list)
+
+            # Retrieve the selected candidate's row
+            selected_candidate = eligible_df[eligible_df["Evaluator"] == selected_preceptor].iloc[0]
 
             ###########################################################################################
             # Generate a spotlight summary using ChatGPT (based on the strengths feedback)
