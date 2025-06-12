@@ -660,6 +660,11 @@ if analysis_report_file is not None:
             ########################################################
 
             # 1) Let user pick someone
+            if "_prev_preceptor" not in st.session_state:
+                st.session_state["_prev_preceptor"] = None
+            if "spotlight_reason" not in st.session_state:
+                st.session_state["spotlight_reason"] = ""   # empty string, not undefined
+                
             preceptor_list = eligible_df["Evaluator"].unique()
             selected_preceptor = st.selectbox("Select a preceptor to spotlight:", preceptor_list)
             
