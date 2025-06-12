@@ -331,8 +331,6 @@ if redcapmetrics is not None:
             dfe = pd.read_excel(redcapmetrics)
         # Display the DataFrame in the app
         
-        #st.dataframe(dfe)
-        
         dff = dfe 
         dfg = dfe 
         dfh = dfe 
@@ -464,7 +462,6 @@ if evaluation_due_dates_file is not None:
         # Calculate the percentage of on-time evaluations per evaluator
         grouped['percentage_on_time'] = ((grouped['on_time_evaluations'] / grouped['total_evaluations']) * 100).round(1)
 
-        st.dataframe(grouped)
         grouped = grouped.reset_index()
         # Now, if you still need to set it as the index for further operations:
         grouped = grouped.set_index('Evaluator')
@@ -633,7 +630,6 @@ if analysis_report_file is not None:
         
         # Filter for eligible preceptors: every evaluation score must be 4.5 or above.
         eligible_df = df_final[df_final[score_cols].ge(4.5).all(axis=1)].copy()
-        st.dataframe(eligible_df)
 
         ###########################################################################################
         # Retrieve already spotlighted evaluators from Firebase.
