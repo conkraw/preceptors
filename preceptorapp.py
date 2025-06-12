@@ -717,7 +717,7 @@ if analysis_report_file is not None:
             ###########################################################################################
             if "spotlight_row" in st.session_state:
                 row = st.session_state["spotlight_row"]
-                db.collection("spotlight").document(row["Evaluator"]).set({"Evaluator": row["Evaluator"])
+                db.collection("spotlight").document(row["Evaluator"]).set({"Evaluator": row["Evaluator"]})
                 st.success(f"Spotlight uploaded for {row["Evaluator"]}")
             ###########################################################################################
 
