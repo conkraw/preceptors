@@ -659,19 +659,30 @@ if analysis_report_file is not None:
             #selected_candidate = eligible_df.sample(n=1).iloc[0]  #
             ########################################################
 
-            # Let user select from eligible preceptors
+            # 1) Let user pick someone
             preceptor_list = eligible_df["Evaluator"].unique()
             selected_preceptor = st.selectbox("Select a preceptor to spotlight:", preceptor_list)
-
-            # Retrieve the selected candidate's row
-            selected_candidate = eligible_df[eligible_df["Evaluator"] == selected_preceptor].iloc[0]
-
-            ###########################################################################################
-            # Generate a spotlight summary using ChatGPT (based on the strengths feedback)
-            with st.spinner("Generating spotlight summary..."):
-                spotlight_reason = generate_spotlight_summary(selected_candidate["strengths_preceptor"], selected_candidate["Evaluator"])
             
-            st.success("Done.")
+            # 2) If they pick a different name, wipe out any prior summary
+            if ("_prev_preceptor" not in st.session_state
+                or st.session_state["_prev_preceptor"] != selected_preceptor):
+                st.session_state["_prev_preceptor"] = selected_preceptor
+                st.session_state.pop("spotlight_reason", None)
+            
+            # 3) Only generate when they hit the button
+            if st.button("🖋️ Generate Spotlight Summary"):
+                with st.spinner("Generating spotlight summary…"):
+                    # pull the right row
+                    sel = eligible_df[eligible_df["Evaluator"] == selected_preceptor].iloc[0]
+                    st.session_state["spotlight_reason"] = generate_spotlight_summary(
+                        sel["strengths_preceptor"],
+                        sel["Evaluator"],
+                    )
+                st.success("Done!")
+            
+            # 4) If we have a cached result, show it
+            if "spotlight_reason" in st.session_state:
+                st.write(st.session_state["spotlight_reason"])
 
             ###########################################################################################
             
