@@ -644,88 +644,33 @@ if analysis_report_file is not None:
         ###########################################################################################
         
         if eligible_df.empty:
-            st.info("No eligible preceptors found for the spotlight this month.")
+            st.info("No eligible preceptors…")
         else:
-            ########################################################
-            # --- STEP 2: Randomly Select a Spotlight Candidate ---#
-            #selected_candidate = eligible_df.sample(n=1).iloc[0]  #
-            ########################################################
-            
-            df_final = st.session_state["df_final_summarized"]
-            
-            # 0) Initialize our session‑state defaults exactly once
-            if "_prev_preceptor" not in st.session_state:
-                st.session_state["_prev_preceptor"] = None
-            if "spotlight_reason" not in st.session_state:
-                st.session_state["spotlight_reason"] = ""   # empty string, not undefined
-            
-            # 1) Let user pick someone
-            preceptor_list = eligible_df["Evaluator"].unique()
-            selected_preceptor = st.selectbox("Select a preceptor to spotlight:", preceptor_list)
-            
-            # 2) If they pick a different name, clear out the old summary
-            if st.session_state["_prev_preceptor"] != selected_preceptor:
-                st.session_state["_prev_preceptor"] = selected_preceptor
-                st.session_state["spotlight_reason"] = ""
-            
-            # 3) Button to trigger AI
+            selected_preceptor = st.selectbox("Select a preceptor…", eligible_df["Evaluator"].unique())
+        
             if st.button("🖋️ Generate Spotlight Summary"):
-                with st.spinner("Generating spotlight summary…"):
+                with st.spinner("Generating…"):
+                    # 1) Pull out the row you want
                     sel_row = eligible_df[eligible_df["Evaluator"] == selected_preceptor].iloc[0]
-                    st.session_state["spotlight_reason"] = generate_spotlight_summary(
+        
+                    # 2) Generate and stash the summary
+                    summary = generate_spotlight_summary(
                         sel_row["strengths_preceptor"],
                         sel_row["Evaluator"],
                     )
-                    st.session_state["df_spotlight"] = pd.DataFrame([sel_row])
-                    st.session_state["spotlight_evaluator"] = sel_row["Evaluator"]
+                    st.session_state["spotlight_reason"] = summary
+        
+                    # 3) Immediately write the record to Firebase
+                    record = {
+                        "Evaluator": sel_row["Evaluator"],
+                        "Evaluator Email": sel_row["Evaluator Email"],
+                        "Form Record": str(sel_row["Form Record"]),
+                        "spotlight_summary": summary,
+                        # …etc…
+                    }
+                    db.collection("spotlight").document(sel_row["Evaluator"]).set(record)
+                    st.success(f"Spotlight uploaded for {sel_row['Evaluator']}")
                     
-                st.success("Spotlight Ready!")
-            
-            # 4) Display only if we have text
-            if st.session_state["spotlight_reason"]:
-                # 1) Pull your DF from session_state
-                df_final = st.session_state["df_final_summarized"]
-            
-                # 2) Create a boolean mask for the selected preceptor
-                mask = df_final["Evaluator"] == st.session_state["_prev_preceptor"]
-
-                #row = df_final.loc[mask].iloc[0]
-
-                sel_row = df_final.loc[mask].iloc[0]
-
-                # 3) Assign the session_state text into a new column
-                df_final.loc[mask, "spotlight_summary"] = st.session_state["spotlight_reason"]
-            
-                # 4) Update your cached DF so later widgets (or downloads) see it too
-                st.session_state["df_final_summarized"] = df_final
-            
-                # 5) Extract just that row & display
-                df_spotlight = df_final[mask]
-                st.dataframe(df_spotlight)
-             
-                # --- STEP 3: Upload the Spotlight Record to Firebase ---
-                # Use the evaluator's name as the document ID.
-                record = {
-                    "Evaluator": sel_row["Evaluator"],
-                    "Evaluator Email": sel_row["Evaluator Email"],
-                    "Form Record": str(sel_row["Form Record"]),
-                    "spotlight_summary": st.session_state["spotlight_reason"],
-                    "Rotation Period": sel_row["Rotation Period"],
-                    "num_evaluations": int(sel_row["num_evaluations"]),
-                    "strengths_preceptor": sel_row["strengths_preceptor"],
-                    "improvement_preceptor": sel_row["improvement_preceptor"],
-                }
-
-            ###########################################################################################
-            if "spotlight_row" in st.session_state:
-                row = st.session_state["spotlight_row"]
-                db.collection("spotlight").document(row["Evaluator"]).set({"Evaluator": row["Evaluator"]})
-                st.success(f"Spotlight uploaded for {row["Evaluator"]}")
-            ###########################################################################################
-            if "df_spotlight" in st.session_state:
-                df_spotlight = st.session_state["df_spotlight"]
-            # --- STEP 4: Create a Word Document for the Spotlight Candidate ---
-                for idx, row in df_spotlight.iterrows():
                     document = docx.Document()
                     paragraph = document.add_paragraph("PRECEPTOR SPOTLIGHT SUMMARY")
                         
