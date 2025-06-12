@@ -983,7 +983,7 @@ if analysis_report_file is not None:
             st.session_state["spotlight_downloaded"] = True
         
         # 3️⃣ Now only when that flag is set, run your ZIP code
-        if st.session_state.get("spotlight_downloaded"):
+        if st.session_state.get("spotlight_downloaded") and "all_evaluators_zip" not in st.session_state:
             # Create an in-memory zip file
             zip_buffer = io.BytesIO()
             
@@ -1257,9 +1257,12 @@ if analysis_report_file is not None:
             # Finalize the zip file and get its binary content
             zip_buffer.seek(0)
             zip_data = zip_buffer.getvalue()
+
+            st.session_state["all_evaluators_zip"] = zip_buffer.getvalue()
             
             # Provide a download button for the zip file (Streamlit)
-            st.download_button(label="Download Evaluator Word Files",data=zip_buffer,file_name="evaluators.zip",mime="application/zip",key="download_evaluators_zip")
+            if "all_evaluators_zip" in st.session_state:
+                st.download_button(label="Download Evaluator Word Files",data=st.session_state["all_evaluators_zip"],file_name="evaluators.zip",mime="application/zip",key="download_evaluators_zip")
 
     except Exception as e:
         st.error(f"Error loading file: {e}")
