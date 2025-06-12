@@ -608,13 +608,26 @@ if analysis_report_file is not None:
         # Display the final aggregated DataFrame with the count of evaluations
         st.dataframe(df_final)
         
-        uploaded = st.file_uploader("Upload a new eligible DataFrame (CSV or XLSX) to replace the default",type=["csv", "xlsx"])
-        if uploaded is not None:
-            if uploaded.name.lower().endswith(".csv"):
-                df_final = pd.read_csv(uploaded)
-            else:
-                df_final = pd.read_excel(uploaded)
+        #uploaded = st.file_uploader("Upload a new eligible DataFrame (CSV or XLSX) to replace the default",type=["csv", "xlsx"])
+        #if uploaded is not None:
+        #    if uploaded.name.lower().endswith(".csv"):
+        #        df_final = pd.read_csv(uploaded)
+        #    else:
+        #        df_final = pd.read_excel(uploaded)
+
+
+        with st.spinner("Summarizing strengths..."):
+            df_final["strengths_summary"] = df_final.apply(lambda row: strengths(row["strengths_preceptor"], row["Evaluator"]), axis=1)
+        st.success("Strengths summary completed.")
         
+        with st.spinner("Summarizing areas for improvement..."):
+            df_final["improvement_summary"] = df_final.apply(lambda row: improvement(row["improvement_preceptor"], row["Evaluator"]), axis=1)
+        st.success("Improvement summary completed.")
+        
+        with st.spinner("Summarizing documentation feedback..."):
+            df_final["documentation_summary"] = df_final["documentation_summary"].apply(summarize_feedback)
+        st.success("Documentation summary completed.")
+                
         # --- STEP 1: Identify Eligible Preceptors ---
         # Define the known text fields to identify numeric score columns.
         known_cols = {"Evaluator", "Evaluator Email", "Rotation Period", "strengths_preceptor", "improvement_preceptor", "strengths_summary", "improvement_summary", "num_evaluations", "Form Record", "total_evaluations", "percentage_on_time", "student_matches", "student_assignments", "average_prac_score", "average_doc_score", "average_nbme"}
