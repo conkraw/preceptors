@@ -665,9 +665,13 @@ if analysis_report_file is not None:
                         "Evaluator": sel_row["Evaluator"],
                         "Evaluator Email": sel_row["Evaluator Email"],
                         "Form Record": str(sel_row["Form Record"]),
-                        "spotlight_summary": summary,
-                        # …etc…
+                        "spotlight_summary": st.session_state["spotlight_reason"],
+                        "Rotation Period": sel_row["Rotation Period"],
+                        "num_evaluations": int(sel_row["num_evaluations"]),
+                        "strengths_preceptor": sel_row["strengths_preceptor"],
+                        "improvement_preceptor": sel_row["improvement_preceptor"],
                     }
+                    
                     db.collection("spotlight").document(sel_row["Evaluator"]).set(record)
                     st.success(f"Spotlight uploaded for {sel_row['Evaluator']}")
                     
@@ -920,11 +924,15 @@ if analysis_report_file is not None:
                     doc_buffer.seek(0)
     
                     spotlight_doc_content = doc_buffer.read()
-
+                    
+                
         zip_buffer = io.BytesIO()
         
         with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zipf:
-            zipf.writestr(f"{row['Evaluator'].replace(' ', '_')}_spotlight.docx", spotlight_doc_content)
+            #zipf.writestr(f"{sel_row['Evaluator'].replace(' ', '_')}_spotlight.docx", spotlight_doc_content)
+            safe_name = selected_preceptor.replace(" ", "_")
+            zipf.writestr(f"{safe_name}_spotlight.docx",spotlight_doc_content)
+            
             # Loop through each evaluator in df_final
             df_final = df_final.loc[df_final['num_evaluations'] >= 1]
             st.dataframe(df_final)
