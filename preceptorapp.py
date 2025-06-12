@@ -684,10 +684,6 @@ if analysis_report_file is not None:
                         sel["Evaluator"],
                     )
                 st.success("Done!")
-            
-            # 4) If we have a cached result, show it
-            if "spotlight_reason" in st.session_state:
-                st.write(st.session_state["spotlight_reason"])
 
             ###########################################################################################
             
