@@ -967,7 +967,7 @@ if analysis_report_file is not None:
                 document.add_paragraph("")
                 create_comment_table(document, "Opportunities for Improvement Comments", row["improvement_preceptor"],6.14)
                 document.add_paragraph("")
-                create_comment_table(document, "Spotlight Summary", spotlight_reason,6.14)
+                create_comment_table(document, "Spotlight Summary", st.session_state["spotlight_reason"],6.14)
                 
                 # --- STEP 5: Provide a Download Button for the Word Document ---
                 doc_buffer = io.BytesIO()
