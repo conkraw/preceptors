@@ -655,8 +655,11 @@ if analysis_report_file is not None:
 
             ###########################################################################################
             # Generate a spotlight summary using ChatGPT (based on the strengths feedback)
-            #spotlight_reason = generate_spotlight_summary(selected_candidate["strengths_preceptor"], selected_candidate["Evaluator"])
-            spotlight_reason = "test"
+            with st.spinner("Generating spotlight summary..."):
+                spotlight_reason = generate_spotlight_summary(selected_candidate["strengths_preceptor"], selected_candidate["Evaluator"])
+            
+            st.success("Done.")
+
             ###########################################################################################
             
             # Add the spotlight summary to the DataFrame (if desired)
