@@ -1259,7 +1259,7 @@ if analysis_report_file is not None:
             zip_data = zip_buffer.getvalue()
             
             # Provide a download button for the zip file (Streamlit)
-            st.download_button(label="Download Evaluator Word Files",data=zip_data,file_name="evaluators.zip",mime="application/zip",key="download_evaluators_zip")
+            st.download_button(label="Download Evaluator Word Files",data=zip_buffer,file_name="evaluators.zip",mime="application/zip",key="download_evaluators_zip")
 
     except Exception as e:
         st.error(f"Error loading file: {e}")
