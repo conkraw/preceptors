@@ -642,6 +642,8 @@ if analysis_report_file is not None:
         # Exclude evaluators already in the spotlight.
         eligible_df = eligible_df[~eligible_df["Evaluator"].isin(spotlight_evaluators)]
         ###########################################################################################
+
+        spotlight_doc_content = None
         
         if eligible_df.empty:
             st.info("No eligible preceptors…")
