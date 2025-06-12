@@ -665,9 +665,13 @@ if analysis_report_file is not None:
                         "Evaluator": sel_row["Evaluator"],
                         "Evaluator Email": sel_row["Evaluator Email"],
                         "Form Record": str(sel_row["Form Record"]),
-                        "spotlight_summary": summary,
-                        # …etc…
+                        "spotlight_summary": st.session_state["spotlight_reason"],
+                        "Rotation Period": sel_row["Rotation Period"],
+                        "num_evaluations": int(sel_row["num_evaluations"]),
+                        "strengths_preceptor": sel_row["strengths_preceptor"],
+                        "improvement_preceptor": sel_row["improvement_preceptor"],
                     }
+
                     db.collection("spotlight").document(sel_row["Evaluator"]).set(record)
                     st.success(f"Spotlight uploaded for {sel_row['Evaluator']}")
                     
@@ -714,7 +718,7 @@ if analysis_report_file is not None:
                     
                     # Add the preceptor name in the second cell (assuming row['Evaluator'] holds the name)
                     p_value = cell_value.paragraphs[0]
-                    p_value.add_run(row['Evaluator'])
+                    p_value.add_run(sel_row['Evaluator'])
         
                     shade_cell(cell_label, "ADD8E6")
                     shade_cell(cell_value, "ADD8E6")
@@ -746,27 +750,27 @@ if analysis_report_file is not None:
                     
                                     # Row 1: Rotation Periods
                     details_table.cell(1, 0).text = "Rotation Period (s):"
-                    details_table.cell(1, 1).text = str(row['Rotation Period'])
+                    details_table.cell(1, 1).text = str(sel_row['Rotation Period'])
     
                     # Row 2: Number of Evaluations
                     details_table.cell(2, 0).text = "Student-Completed Preceptor Evaluations (n):"
-                    details_table.cell(2, 1).text = str(row['num_evaluations'])
+                    details_table.cell(2, 1).text = str(sel_row['num_evaluations'])
                     
                     # Row 3: Number of Student Evaluations Completed by Evaluator
                     details_table.cell(3, 0).text = "Preceptor-Completed Student Evaluations (n):"
-                    details_table.cell(3, 1).text = str(row['total_evaluations'])
+                    details_table.cell(3, 1).text = str(sel_row['total_evaluations'])
                     
                     # Row 4: Percentage of Student Evaluations Completed within 14 days
                     details_table.cell(4, 0).text = "On-Time Completion Rate (%):"
-                    details_table.cell(4, 1).text = f"{row['percentage_on_time']:.1f}%"
+                    details_table.cell(4, 1).text = f"{sel_row['percentage_on_time']:.1f}%"
     
                     # Row 5: Percentage of Student Evaluations Completed within 14 days
                     details_table.cell(5, 0).text = "Number of Students Assigned to Preceptor:"
-                    details_table.cell(5, 1).text = str(row['student_assignments'])
+                    details_table.cell(5, 1).text = str(sel_row['student_assignments'])
     
                     # Row 6: Percentage of Student Evaluations Completed within 14 days
                     details_table.cell(6, 0).text = "Number of Times Preceptor Matched to Student:"
-                    details_table.cell(6, 1).text = str(row['student_matches'])
+                    details_table.cell(6, 1).text = str(sel_row['student_matches'])
     
     
                     # Optionally set column widths
@@ -906,11 +910,11 @@ if analysis_report_file is not None:
                         details_table.cell(row_idx, 1).width = col_width_right
                     
                     document.add_paragraph("")
-                    create_comment_table(document, "Student Documentation Comments", row["documentation_summary"], 6.14)
+                    create_comment_table(document, "Student Documentation Comments", sel_row["documentation_summary"], 6.14)
                     document.add_paragraph("")
-                    create_comment_table(document, "Strengths Comments", row["strengths_preceptor"], 6.14)
+                    create_comment_table(document, "Strengths Comments", sel_row["strengths_preceptor"], 6.14)
                     document.add_paragraph("")
-                    create_comment_table(document, "Opportunities for Improvement Comments", row["improvement_preceptor"],6.14)
+                    create_comment_table(document, "Opportunities for Improvement Comments", sel_row["improvement_preceptor"],6.14)
                     document.add_paragraph("")
                     create_comment_table(document, "Spotlight Summary", st.session_state["spotlight_reason"],6.14)
                     
