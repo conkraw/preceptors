@@ -659,31 +659,35 @@ if analysis_report_file is not None:
             #selected_candidate = eligible_df.sample(n=1).iloc[0]  #
             ########################################################
 
-            # 1) Let user pick someone
+            # 0) Initialize our session‑state defaults exactly once
             if "_prev_preceptor" not in st.session_state:
                 st.session_state["_prev_preceptor"] = None
             if "spotlight_reason" not in st.session_state:
                 st.session_state["spotlight_reason"] = ""   # empty string, not undefined
-                
+            
+            # 1) Let user pick someone
             preceptor_list = eligible_df["Evaluator"].unique()
             selected_preceptor = st.selectbox("Select a preceptor to spotlight:", preceptor_list)
             
-            # 2) If they pick a different name, wipe out any prior summary
-            if ("_prev_preceptor" not in st.session_state
-                or st.session_state["_prev_preceptor"] != selected_preceptor):
+            # 2) If they pick a different name, clear out the old summary
+            if st.session_state["_prev_preceptor"] != selected_preceptor:
                 st.session_state["_prev_preceptor"] = selected_preceptor
-                st.session_state.pop("spotlight_reason", None)
+                st.session_state["spotlight_reason"] = ""
             
-            # 3) Only generate when they hit the button
+            # 3) Button to trigger AI
             if st.button("🖋️ Generate Spotlight Summary"):
                 with st.spinner("Generating spotlight summary…"):
-                    # pull the right row
                     sel = eligible_df[eligible_df["Evaluator"] == selected_preceptor].iloc[0]
                     st.session_state["spotlight_reason"] = generate_spotlight_summary(
                         sel["strengths_preceptor"],
                         sel["Evaluator"],
                     )
                 st.success("Done!")
+            
+            # 4) Display only if we have text
+            if st.session_state["spotlight_reason"]:
+                st.markdown(st.session_state["spotlight_reason"])
+
 
             ###########################################################################################
             
