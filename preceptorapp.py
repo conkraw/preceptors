@@ -973,12 +973,15 @@ if analysis_report_file is not None:
                 doc_buffer = io.BytesIO()
                 document.save(doc_buffer)
                 doc_buffer.seek(0)
+
+                spotlight_doc_content = doc_buffer.read()
             
-            st.download_button(label="Download Spotlight Word Document", data=doc_buffer, file_name=f"{row['Evaluator']}_spotlight.docx", mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",key="download_spotlight_doc")
+            #st.download_button(label="Download Spotlight Word Document", data=doc_buffer, file_name=f"{row['Evaluator']}_spotlight.docx", mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",key="download_spotlight_doc")
 
         zip_buffer = io.BytesIO()
         
         with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zipf:
+            zipf.writestr(f"{row['Evaluator'].replace(' ', '_')}_spotlight.docx", spotlight_doc_content)
             # Loop through each evaluator in df_final
             df_final = df_final.loc[df_final['num_evaluations'] >= 1]
             st.dataframe(df_final)
