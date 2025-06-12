@@ -928,7 +928,11 @@ if analysis_report_file is not None:
         zip_buffer = io.BytesIO()
         
         with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zipf:
-            zipf.writestr(f"{row['Evaluator'].replace(' ', '_')}_spotlight.docx", spotlight_doc_content)
+            eval_name = st.session_state["spotlight_evaluator"]
+            safe_name = "".join(c for c in eval_name if c.isalnum() or c in (" ", "_"))\
+                            .replace(" ", "_")
+            # use that instead of `row`
+            zipf.writestr(f"{safe_name}_spotlight.docx", spotlight_doc_content)
             # Loop through each evaluator in df_final
             df_final = df_final.loc[df_final['num_evaluations'] >= 1]
             st.dataframe(df_final)
