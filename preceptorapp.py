@@ -492,7 +492,7 @@ if analysis_report_file is not None:
         dfa = dfa.iloc[:, selected_indices]
 
         df = dfa.copy()
-        st.dataframe(dfa) 
+        st.dataframe(df) 
         st.stop()
         
         rename_mapping = {}
