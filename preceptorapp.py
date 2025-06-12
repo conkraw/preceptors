@@ -720,8 +720,8 @@ if analysis_report_file is not None:
                 }
 
             ###########################################################################################
-            db.collection("spotlight").document(selected_candidate["Evaluator"]).set(record)
-            st.success(f"Spotlight selected: {selected_candidate['Evaluator']}")
+            db.collection("spotlight").document(row["Evaluator"]).set(record)
+            st.success(f"Spotlight uploaded for {row['Evaluator']}")
             ###########################################################################################
 
             # --- STEP 4: Create a Word Document for the Spotlight Candidate ---
