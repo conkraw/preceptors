@@ -970,13 +970,11 @@ if analysis_report_file is not None:
                 create_comment_table(document, "Spotlight Summary", st.session_state["spotlight_reason"],6.14)
                 
                 # --- STEP 5: Provide a Download Button for the Word Document ---
-                doc_buffer1 = io.BytesIO()
-                document.save(doc_buffer1)
-                doc_buffer1.seek(0)
-                filename1 = f"{row['Evaluator']}_spotlight.docx"
-                all_docs.append((filename1, doc_buffer1.read()))
+                doc_buffer = io.BytesIO()
+                document.save(doc_buffer)
+                doc_buffer.seek(0)
             
-            #st.download_button(label="Download Spotlight Word Document", data=doc_buffer, file_name=f"{row['Evaluator']}_spotlight.docx", mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",key="download_spotlight_doc")
+            st.download_button(label="Download Spotlight Word Document", data=doc_buffer, file_name=f"{row['Evaluator']}_spotlight.docx", mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",key="download_spotlight_doc")
 
         zip_buffer = io.BytesIO()
         
@@ -1243,17 +1241,10 @@ if analysis_report_file is not None:
                 # Create a filename safe for the evaluator (using evaluator's name)
                 safe_name = "".join(c for c in row['Evaluator'] if c.isalnum() or c in (' ', '_')).rstrip().replace(" ", "_")
                 filename = f"{safe_name}.docx"
-
-                all_docs.append((filename, doc_buffer.read()))
                 
                 # Write the Word file to the zip archive
-                #zipf.writestr(filename, doc_buffer.read())
-
-        zip_buffer = io.BytesIO()
-        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zipf:
-            for filename, content in all_docs:
-                zipf.writestr(filename, content)
-            
+                zipf.writestr(filename, doc_buffer.read())
+        
         # Finalize the zip file and get its binary content
         zip_buffer.seek(0)
         zip_data = zip_buffer.getvalue()
