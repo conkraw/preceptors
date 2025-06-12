@@ -620,6 +620,17 @@ if analysis_report_file is not None:
         eligible_df = df_final[df_final[score_cols].ge(4.5).all(axis=1)].copy()
         st.dataframe(eligible_df)
 
+        uploaded = st.file_uploader("Upload a new eligible DataFrame (CSV or XLSX) to replace the default",type=["csv", "xlsx"])
+        if uploaded is not None:
+            if uploaded.name.lower().endswith(".csv"):
+                eligible_df = pd.read_csv(uploaded)
+            else:
+                eligible_df = pd.read_excel(uploaded)
+        # 3. Show whichever eligible_df is current
+        
+        st.dataframe(eligible_df)
+        st.stop()
+        
         ###########################################################################################
         # Retrieve already spotlighted evaluators from Firebase.
         spotlight_docs = db.collection("spotlight").stream()
