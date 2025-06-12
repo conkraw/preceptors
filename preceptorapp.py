@@ -940,7 +940,8 @@ if analysis_report_file is not None:
                 # Loop through each evaluator in df_final
                 df_final = df_final.loc[df_final['num_evaluations'] >= 1]
                 st.dataframe(df_final)
-                row = st.session_state["df_spotlight"].iloc[0]
+
+                sel_row = eligible_df[eligible_df["Evaluator"] == selected_preceptor].iloc[0]; row = sel_row
                 
                 for idx, row in df_final.iterrows():
                     # Create a new Word document for each evaluator
