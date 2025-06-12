@@ -677,6 +677,8 @@ if analysis_report_file is not None:
                         sel_row["Evaluator"],
                     )
                     st.session_state["df_spotlight"] = pd.DataFrame([sel_row])
+                    st.session_state["spotlight_evaluator"] = sel_row["Evaluator"]
+                    
                 st.success("Spotlight Ready!")
             
             # 4) Display only if we have text
