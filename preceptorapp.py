@@ -940,6 +940,8 @@ if analysis_report_file is not None:
                 # Loop through each evaluator in df_final
                 df_final = df_final.loc[df_final['num_evaluations'] >= 1]
                 st.dataframe(df_final)
+                row = st.session_state["df_spotlight"].iloc[0]
+                
                 for idx, row in df_final.iterrows():
                     # Create a new Word document for each evaluator
                     document = docx.Document()
