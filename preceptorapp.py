@@ -974,7 +974,7 @@ if analysis_report_file is not None:
                 document.save(doc_buffer)
                 doc_buffer.seek(0)
             
-            st.download_button(label="Download Spotlight Word Document", data=doc_buffer, file_name=f"{selected_candidate['Evaluator']}_spotlight.docx", mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",key="download_spotlight_doc")
+            st.download_button(label="Download Spotlight Word Document", data=doc_buffer, file_name=f"{row['Evaluator']}_spotlight.docx", mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",key="download_spotlight_doc")
 
 
         # Create an in-memory zip file
